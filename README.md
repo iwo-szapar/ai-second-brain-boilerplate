@@ -20,6 +20,9 @@ ai-second-brain-boilerplate/
     decision-memo.md
   inbox/
     messy-week-notes.md
+  demo/
+    opening-second-brain-answer.md
+    session-checklist.md
   tools/
     allowed-tools.md
 ```
@@ -65,3 +68,18 @@ Load this repo as my AI Second Brain.
 
 Explain what context you found, what is missing, and the first workflow I should customize.
 ```
+
+## Live Demo Materials
+
+If you are presenting this concept to others, use:
+
+- `demo/opening-second-brain-answer.md` for the opening before/after moment.
+- `demo/session-checklist.md` for the full 60-minute storytelling flow.
+
+The simplest story:
+
+1. Show what generic AI says with no context.
+2. Show what AI says after reading your Second Brain.
+3. Turn the repeated prompt into a workflow.
+4. Save what was learned back into memory.
+5. Give people this boilerplate so they can build their first version.
