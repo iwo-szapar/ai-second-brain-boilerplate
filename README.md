@@ -31,11 +31,13 @@ ai-second-brain-boilerplate/
 
 Open this folder in Claude Code or any AI coding assistant that can read project files.
 
-The easiest starting point is the copy-paste mega prompt:
+The easiest starting point is the adaptive copy-paste mega prompt:
 
-- `MEGA_PROMPT.md`
+- `MEGA_PROMPT_V2.md`
 
-Use it when you want Claude to inspect this repo, research your public context, ask you a few questions, and personalize the boilerplate for you.
+Use it when you want Claude to inspect this repo, research your public context, play back what it understood, ask only what is missing, propose workflow candidates, and personalize the boilerplate for you.
+
+`MEGA_PROMPT.md` is the shorter v1. Start with v2 unless you want a simpler setup.
 
 If you want a shorter first prompt, use:
 
