@@ -31,7 +31,13 @@ ai-second-brain-boilerplate/
 
 Open this folder in Claude Code or any AI coding assistant that can read project files.
 
-Start with:
+The easiest starting point is the copy-paste mega prompt:
+
+- `MEGA_PROMPT.md`
+
+Use it when you want Claude to inspect this repo, research your public context, ask you a few questions, and personalize the boilerplate for you.
+
+If you want a shorter first prompt, use:
 
 ```text
 Load my operating context from this repo.
