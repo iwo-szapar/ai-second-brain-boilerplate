@@ -21,6 +21,7 @@ ai-second-brain-boilerplate/
   inbox/
     messy-week-notes.md
   demo/
+    my-second-brain-opener.md
     opening-second-brain-answer.md
     session-checklist.md
   tools/
@@ -81,6 +82,7 @@ Explain what context you found, what is missing, and the first workflow I should
 
 If you are presenting this concept to others, use:
 
+- `demo/my-second-brain-opener.md` to explain your own Second Brain in numbers before the demo.
 - `demo/opening-second-brain-answer.md` for the opening before/after moment.
 - `demo/session-checklist.md` for the full 60-minute storytelling flow.
 
