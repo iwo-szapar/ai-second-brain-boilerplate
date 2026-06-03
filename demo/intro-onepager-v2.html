@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>You don't need better AI. You need a system. — South Summit Madrid 2026 · Iwo Szapar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --ink:#0b0b0c;
+  --ink-2:#121214;
+  --ink-3:#1a1a1d;
+  --bone:#ECE6DA;
+  --bone-dim:#A39C8E;
+  --bone-faint:#6b665c;
+  --line:#26252480;
+  --lime:#C7F24E;
+  --lime-deep:#9fc52f;
+  --amber:#E9A23B;
+  --amber-deep:#c4832a;
+  --r:18px;
+  --maxw:1180px;
+  --ease:cubic-bezier(.2,.75,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink);
+  color:var(--bone);
+  font-family:"Hanken Grotesk",sans-serif;
+  font-size:18px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  position:relative;
+}
+/* ---------- ground texture ---------- */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(1200px 700px at 80% -10%, #1c1c1f 0%, transparent 60%),
+    radial-gradient(900px 600px at -10% 30%, #161618 0%, transparent 55%);
+}
+.grain{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.dotgrid{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.4;
+  background-image:radial-gradient(#ffffff10 1px, transparent 1px);
+  background-size:46px 46px;
+  -webkit-mask-image:radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 80%);
+  mask-image:radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 80%);
+}
+main{position:relative;z-index:2}
+
+/* ---------- top progress + index ---------- */
+.topbar{position:fixed;top:0;left:0;right:0;height:3px;z-index:60;background:transparent}
+.topbar .fill{height:100%;width:0;background:linear-gradient(90deg,var(--lime),var(--amber));box-shadow:0 0 14px #c7f24e66}
+.counter{
+  position:fixed;top:22px;left:26px;z-index:60;
+  font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.12em;
+  color:var(--bone-dim);text-transform:uppercase;
+  display:flex;gap:.55em;align-items:center;mix-blend-mode:difference;
+}
+.counter b{color:var(--bone)}
+.counter .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 10px var(--lime)}
+
+/* ---------- phase rail ---------- */
+.rail{
+  position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:60;
+  display:flex;flex-direction:column;gap:0;font-family:"JetBrains Mono",monospace;
+  opacity:0;transition:opacity .6s var(--ease);
+}
+.rail.show{opacity:1}
+.rail .ph{
+  display:flex;align-items:center;gap:.7em;justify-content:flex-end;
+  padding:9px 0;color:var(--bone-faint);font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;transition:color .4s var(--ease);text-align:right;
+}
+.rail .ph .lbl{max-width:0;overflow:hidden;white-space:nowrap;opacity:0;transition:.45s var(--ease)}
+.rail:hover .ph .lbl,.rail .ph.active .lbl{max-width:130px;opacity:1}
+.rail .ph .pip{
+  width:10px;height:10px;border-radius:50%;border:1.5px solid #3a382f;flex:none;
+  transition:.4s var(--ease);position:relative;
+}
+.rail .ph.active{color:var(--bone)}
+.rail .ph.active .pip{background:var(--lime);border-color:var(--lime);box-shadow:0 0 12px var(--lime)}
+.rail .ph.done .pip{background:#3a382f;border-color:#3a382f}
+.rail .ph .n{font-size:11px;opacity:.6}
+
+/* ---------- run-notes ---------- */
+.note-hint{
+  position:fixed;bottom:20px;right:24px;z-index:60;
+  font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em;
+  color:var(--bone-faint);text-transform:uppercase;display:flex;align-items:center;gap:.6em;
+  transition:opacity .4s;
+}
+.note-hint kbd{
+  font-family:inherit;border:1px solid #38362d;border-radius:5px;padding:2px 8px;
+  color:var(--bone-dim);background:#ffffff08;box-shadow:0 1px 0 #00000060;
+}
+.notes{
+  position:fixed;left:0;right:0;bottom:0;z-index:80;
+  background:linear-gradient(0deg,#0a0a0bf2,#0a0a0bea);
+  backdrop-filter:blur(14px);border-top:1px solid var(--lime);
+  transform:translateY(101%);transition:transform .5s var(--ease);
+  box-shadow:0 -30px 60px #00000080;
+}
+.notes.open{transform:translateY(0)}
+.notes-inner{max-width:var(--maxw);margin:0 auto;padding:22px 32px 26px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start}
+.notes-tag{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);display:flex;flex-direction:column;gap:6px;border-right:1px solid #ffffff14;padding-right:24px;white-space:nowrap}
+.notes-tag .big{font-size:30px;font-family:"Fraunces";color:var(--bone);letter-spacing:0}
+.notes-body{font-size:16px;line-height:1.6;color:var(--bone)}
+.notes-body .t{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:7px}
+.notes-close{position:absolute;top:12px;right:18px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--bone-faint);cursor:pointer;letter-spacing:.1em}
+
+/* ---------- layout primitives ---------- */
+section{position:relative;padding:14vh 7vw;max-width:1340px;margin:0 auto}
+.wrap{max-width:var(--maxw);margin:0 auto}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--lime-deep);display:inline-flex;align-items:center;gap:.8em;margin-bottom:30px}
+.eyebrow.amber{color:var(--amber-deep)}
+.eyebrow::before{content:"";width:34px;height:1px;background:currentColor;opacity:.7}
+.kicker{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint)}
+
+h1,h2,h3{font-family:"Fraunces",serif;font-weight:500;line-height:1.02;letter-spacing:-.02em}
+.display{font-size:clamp(46px,8.5vw,108px);font-weight:500;line-height:.98;letter-spacing:-.035em}
+.h-lg{font-size:clamp(38px,6vw,76px);line-height:1.0;letter-spacing:-.03em}
+.h-md{font-size:clamp(30px,4.4vw,54px);line-height:1.04;letter-spacing:-.025em}
+em{font-style:italic;color:var(--lime)}
+em.amber{color:var(--amber)}
+.muted{color:var(--bone-dim)}
+.lede{font-size:clamp(19px,2.1vw,24px);line-height:1.5;color:var(--bone-dim);max-width:46ch}
+.lede.tight{max-width:40ch}
+strong{font-weight:700;color:var(--bone)}
+
+/* reveal */
+.r{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.in .r{opacity:1;transform:none}
+.in .r:nth-child(1){transition-delay:.02s}
+.in .r:nth-child(2){transition-delay:.10s}
+.in .r:nth-child(3){transition-delay:.18s}
+.in .r:nth-child(4){transition-delay:.26s}
+.in .r:nth-child(5){transition-delay:.34s}
+.in .r:nth-child(6){transition-delay:.42s}
+.in .r:nth-child(7){transition-delay:.50s}
+.in .r:nth-child(8){transition-delay:.58s}
+@media (prefers-reduced-motion:reduce){.r{opacity:1!important;transform:none!important;transition:none}}
+
+/* ---------- HERO ---------- */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:12vh}
+.hero .display{margin:0}
+.hero-sub{margin-top:42px;display:flex;flex-wrap:wrap;gap:14px 26px;align-items:baseline}
+.hero-sub p{font-size:clamp(18px,2vw,22px);color:var(--bone-dim);max-width:34ch}
+.spot{
+  position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background:radial-gradient(380px 380px at var(--mx,30%) var(--my,40%), #c7f24e1f, transparent 70%);
+  transition:background .2s;
+}
+.scrollcue{position:absolute;bottom:36px;left:7vw;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint);display:flex;align-items:center;gap:10px}
+.scrollcue .bar{width:1px;height:38px;background:linear-gradient(var(--lime),transparent);animation:drop 2.2s var(--ease) infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* lists */
+.flow{display:flex;flex-direction:column;gap:14px;margin-top:36px}
+.flow .li{display:flex;gap:18px;align-items:baseline;font-size:clamp(20px,2.3vw,28px);font-family:"Fraunces";font-weight:400;color:var(--bone)}
+.flow .li i{font-family:"JetBrains Mono";font-style:normal;font-size:12px;color:var(--lime-deep);transform:translateY(-2px)}
+
+.tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.tag{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.04em;padding:9px 15px;border:1px solid #2c2b27;border-radius:999px;color:var(--bone);background:#ffffff05}
+.tag.amber{border-color:#5a4322;color:var(--amber)}
+.tag.lime{border-color:#46531f;color:var(--lime)}
+
+/* code / terminal */
+.term{border:1px solid #232220;border-radius:14px;background:#0e0e10;overflow:hidden;box-shadow:0 30px 60px -30px #000,inset 0 1px 0 #ffffff08}
+.term-head{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid #1d1c1a;background:#111113}
+.term-head .d{width:11px;height:11px;border-radius:50%;background:#2c2b28}
+.term-head .d:nth-child(1){background:#3a2120}
+.term-head .d:nth-child(2){background:#3a3320}
+.term-head .d:nth-child(3){background:#21331f}
+.term-head .ttl{margin-left:10px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--bone-faint);letter-spacing:.06em}
+.term pre{font-family:"JetBrains Mono",monospace;font-size:14px;line-height:1.75;padding:22px 24px;color:#cfcabb;overflow-x:auto}
+.term pre .c{color:#6b665c}
+.term pre .k{color:var(--lime)}
+.term pre .a{color:var(--amber)}
+
+/* split grid */
+.split{display:grid;grid-template-columns:1.05fr 1fr;gap:64px;align-items:center}
+.split.rev{grid-template-columns:1fr 1.05fr}
+@media(max-width:880px){.split,.split.rev{grid-template-columns:1fr;gap:34px}}
+
+/* big stat */
+.stat{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+.stat .num{font-family:"Fraunces";font-weight:500;font-size:clamp(80px,15vw,180px);line-height:.85;letter-spacing:-.04em}
+.stat .num.lime{color:var(--lime)}
+.stat .num.amber{color:var(--amber)}
+.stat .cap{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-dim)}
+
+/* quotes */
+.quotes{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:14px}
+@media(max-width:760px){.quotes{grid-template-columns:1fr}}
+.quote{border-left:2px solid var(--lime);padding:6px 0 6px 26px}
+.quote p{font-family:"Fraunces";font-size:clamp(22px,2.6vw,30px);font-weight:400;line-height:1.18;color:var(--bone)}
+.quote cite{display:block;margin-top:16px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--bone-faint);font-style:normal}
+
+/* four-up */
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#1d1c1a;border:1px solid #1d1c1a;border-radius:16px;overflow:hidden;margin-top:20px}
+@media(max-width:880px){.four{grid-template-columns:1fr 1fr}}
+.four .cell{background:var(--ink);padding:34px 26px;min-height:200px;display:flex;flex-direction:column;justify-content:space-between;transition:background .4s}
+.four .cell:hover{background:#121214}
+.four .cell .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--lime-deep);letter-spacing:.1em}
+.four .cell h3{font-size:30px;letter-spacing:-.02em}
+
+/* why blocks */
+.why{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:start;padding:46px 0;border-top:1px solid var(--line)}
+@media(max-width:760px){.why{grid-template-columns:1fr;gap:18px}}
+.why .idx{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.16em;color:var(--bone-faint);text-transform:uppercase}
+.why .num-big{font-family:"Fraunces";font-size:clamp(54px,9vw,120px);line-height:.8;color:#2b2a26;font-weight:500;letter-spacing:-.03em}
+.why h3{font-size:clamp(28px,3.6vw,46px);margin-bottom:18px}
+.chiprow{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:13px;padding:7px 13px;border-radius:8px;background:#ffffff07;border:1px solid #232220;color:var(--bone)}
+
+/* context stack */
+.stack{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+@media(max-width:880px){.stack{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.stack{grid-template-columns:1fr}}
+.layer{border:1px solid #232220;border-radius:14px;padding:24px;background:linear-gradient(180deg,#111113,#0d0d0f);position:relative;overflow:hidden}
+.layer::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--lime);opacity:.5}
+.layer .ln{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--lime-deep);letter-spacing:.1em}
+.layer h3{font-size:24px;margin:8px 0 14px}
+.layer ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.layer li{font-size:15px;color:var(--bone-dim);font-family:"JetBrains Mono";font-size:13.5px}
+
+/* vs */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1d1c1a;border:1px solid #1d1c1a;border-radius:16px;overflow:hidden;margin-top:24px}
+@media(max-width:760px){.vs{grid-template-columns:1fr}}
+.vs .col{background:var(--ink);padding:34px}
+.vs .col.eng{background:linear-gradient(180deg,#11140b,#0c0d08)}
+.vs .col h3{font-size:30px;margin-bottom:22px;display:flex;align-items:center;gap:12px}
+.vs .col.eng h3{color:var(--lime)}
+.vs ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+.vs li{display:flex;gap:12px;align-items:flex-start;font-size:16.5px;color:var(--bone-dim)}
+.vs li::before{content:"—";color:var(--bone-faint)}
+.vs .eng li{color:var(--bone)}
+.vs .eng li::before{content:"+";color:var(--lime)}
+
+/* plan / moves */
+.moves{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:30px}
+@media(max-width:880px){.moves{grid-template-columns:1fr 1fr}}
+.move{border:1px solid #232220;border-radius:14px;padding:26px;background:#0e0e10;transition:.4s var(--ease)}
+.move:hover{transform:translateY(-4px);border-color:#3a4720}
+.move .mn{font-family:"Fraunces";font-size:40px;color:var(--lime);line-height:1}
+.move h3{font-size:21px;margin:14px 0 8px}
+.move p{font-size:14.5px;color:var(--bone-dim);line-height:1.45}
+
+/* demo rows */
+.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1d1c1a;border:1px solid #1d1c1a;border-radius:14px;overflow:hidden;margin-top:22px}
+@media(max-width:760px){.demo-grid{grid-template-columns:1fr}}
+.demo-grid .side{background:var(--ink);padding:30px}
+.demo-grid .side h4{font-family:"JetBrains Mono";font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:18px}
+.demo-grid .side.run h4{color:var(--lime-deep)}
+.demo-grid ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.demo-grid .ask li{font-family:"Fraunces";font-size:20px;color:var(--bone);line-height:1.25}
+.demo-grid .run li{font-family:"JetBrains Mono";font-size:15px;color:var(--lime)}
+
+/* table */
+.tbl{margin-top:22px;border:1px solid #232220;border-radius:14px;overflow:hidden}
+.tbl .row{display:grid;grid-template-columns:1fr 1.4fr;border-top:1px solid #1d1c1a}
+.tbl .row:first-child{border-top:none}
+.tbl .row .cl{padding:18px 24px}
+.tbl .row .cl:first-child{font-family:"JetBrains Mono";font-size:15px;color:var(--bone);border-right:1px solid #1d1c1a;background:#0f0f11}
+.tbl .row .cl:last-child{color:var(--bone-dim);font-size:16px}
+.tbl .head .cl{font-family:"JetBrains Mono"!important;font-size:11px!important;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-faint)!important;background:#0d0d0f!important}
+
+/* build steps */
+.step{display:grid;grid-template-columns:auto 1fr;gap:40px;padding:44px 0;border-top:1px solid var(--line);align-items:start}
+@media(max-width:760px){.step{grid-template-columns:1fr;gap:18px}}
+.step .sn{font-family:"JetBrains Mono";font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime-deep)}
+.step .snum{font-family:"Fraunces";font-size:clamp(40px,6vw,84px);color:#2b2a26;line-height:.8;margin-top:8px}
+.step h3{font-size:clamp(26px,3.4vw,42px);margin-bottom:14px}
+.pair{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin-top:18px;align-items:baseline}
+.pair dt{font-family:"JetBrains Mono";font-size:14px;color:var(--lime)}
+.pair dd{color:var(--bone-dim);font-size:15.5px}
+.choose{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
+.choose .opt{font-family:"JetBrains Mono";font-size:13.5px;padding:8px 14px;border:1px solid #232220;border-radius:8px;color:var(--bone);background:#ffffff06}
+.choose .opt.live{border-color:var(--lime);color:var(--lime);box-shadow:0 0 0 1px #c7f24e22}
+
+/* prompt doc */
+.promptdoc{border:1px solid #232220;border-radius:16px;background:#0d0d0f;overflow:hidden;margin-top:26px}
+.promptdoc .ph-row{padding:22px 28px;border-top:1px solid #1a1a1c;display:grid;grid-template-columns:140px 1fr;gap:24px}
+.promptdoc .ph-row:first-child{border-top:none}
+.promptdoc .ph-row .lab{font-family:"JetBrains Mono";font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--lime);align-self:start}
+.promptdoc .ph-row .lab.amber{color:var(--amber)}
+.promptdoc .ph-row .txt{color:var(--bone-dim);font-size:15.5px;line-height:1.6}
+.promptdoc .ph-row .txt b{color:var(--bone)}
+@media(max-width:640px){.promptdoc .ph-row{grid-template-columns:1fr;gap:8px}}
+
+/* finale */
+.finale{min-height:92vh;display:flex;flex-direction:column;justify-content:center;text-align:left}
+.finale .big{font-size:clamp(54px,11vw,150px);line-height:.92;letter-spacing:-.04em}
+.url{margin-top:54px;display:inline-flex;align-items:center;gap:16px;font-family:"JetBrains Mono";font-size:15px;letter-spacing:.1em;color:var(--lime);text-decoration:none;border:1px solid #46531f;border-radius:999px;padding:14px 26px;transition:.4s var(--ease)}
+.url:hover{background:var(--lime);color:#0b0b0c;box-shadow:0 0 30px #c7f24e44}
+
+.section-tag{font-family:"JetBrains Mono";font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:20px}
+hr.rule{border:none;border-top:1px solid var(--line);margin:0}
+
+::selection{background:var(--lime);color:#0b0b0c}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="dotgrid"></div>
+
+<div class="topbar"><div class="fill" id="fill"></div></div>
+<div class="counter"><span class="dot"></span><span><b id="cidx">01</b> / <span id="ctot">24</span></span></div>
+
+<nav class="rail" id="rail">
+  <div class="ph" data-phase="1"><span class="lbl">See it work</span><span class="n">01</span><span class="pip"></span></div>
+  <div class="ph" data-phase="2"><span class="lbl">Build it live</span><span class="n">02</span><span class="pip"></span></div>
+  <div class="ph" data-phase="3"><span class="lbl">Use it</span><span class="n">03</span><span class="pip"></span></div>
+  <div class="ph" data-phase="4"><span class="lbl">Take it home</span><span class="n">04</span><span class="pip"></span></div>
+</nav>
+
+<div class="note-hint" id="hint"><kbd>N</kbd> run notes</div>
+
+<div class="notes" id="notes">
+  <div class="notes-close" id="notesClose">esc / N to close ✕</div>
+  <div class="notes-inner">
+    <div class="notes-tag"><span id="nTag">RUN NOTES</span><span class="big" id="nNum">01</span></div>
+    <div class="notes-body"><div class="t">Speaker cue</div><div id="nBody">Scroll the deck — notes follow the section on screen.</div></div>
+  </div>
+</div>
+
+<main id="main">
+
+<!-- 01 HERO -->
+<section class="hero" data-i="01" data-notes="Open cold. Let the title hang for a beat before you speak. The whole talk is one promise: empty folder → working system, live, in this room. Don't explain yet — just set the stake.">
+  <div class="spot" id="spot"></div>
+  <div class="wrap">
+    <div class="eyebrow r">South Summit Madrid 2026 · Iwo Szapar</div>
+    <h1 class="display r">You don't need<br>better AI.<br><em>You need a system.</em></h1>
+    <div class="hero-sub r">
+      <p>Empty folder. One prompt.<br>Watch it become a working AI Second Brain.</p>
+    </div>
+  </div>
+  <div class="scrollcue"><span class="bar"></span> scroll</div>
+</section>
+
+<!-- 02 ORIGIN -->
+<section data-i="02" data-notes="Personal hook. 15 months ago. The pain everyone feels: re-briefing the AI every single morning. Say the three things you re-typed — who I am, what I'm building, what I decided yesterday. The room should nod.">
+  <div class="wrap split">
+    <div>
+      <div class="eyebrow r">The origin</div>
+      <h2 class="h-lg r">15 months ago,<br>I stopped using AI<br>like a <em>chatbot.</em></h2>
+    </div>
+    <div>
+      <p class="lede r">I was tired of re-briefing ChatGPT every morning.</p>
+      <p class="lede r" style="margin-top:20px">Who I am, what I'm building, what I decided yesterday. <strong>Re-typed every single time.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- 03 SYSTEM THAT REMEMBERS -->
+<section data-i="03" data-notes="The turn from pain to solution. 'So I built a system that remembers.' List what it holds — work, decisions, tools, taste, workflows. Land hard on the reframe: a folder becomes an operating system.">
+  <div class="wrap">
+    <div class="eyebrow r">The fix</div>
+    <h2 class="h-lg r">So I built a system<br>that <em>remembers.</em></h2>
+    <div class="flow">
+      <div class="li r"><i>01</i> My work, my decisions, my tools, my taste, my workflows.</div>
+    </div>
+    <h2 class="h-md r" style="margin-top:60px">A folder that becomes<br>an <em>operating system.</em></h2>
+    <p class="lede r" style="margin-top:18px">Here is what that system looks like on disk.</p>
+  </div>
+</section>
+
+<!-- 04 FILE TREE -->
+<section data-i="04" data-notes="Show the skeleton. Walk the tree top to bottom — CLAUDE.md is read first, memory is what it knows, skills/agents/tools are how it acts, inbox is raw input. This exact shape is what we build live later.">
+  <div class="wrap">
+    <div class="term r">
+      <div class="term-head"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">~/second-brain</span></div>
+<pre>second-brain/
+├── <span class="k">CLAUDE.md</span>          <span class="c"># read first</span>
+├── <span class="k">memory/</span>
+│   ├── profile.md
+│   ├── goals.md
+│   ├── projects.md
+│   ├── decisions.md
+│   └── examples.md
+├── <span class="k">skills/</span>
+│   └── daily-priorities.md
+├── <span class="k">agents/</span>
+│   └── operator.md
+├── <span class="k">tools/</span>
+│   └── allowed-tools.md
+└── <span class="k">inbox/</span>              <span class="c"># raw input</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 05 THREE THINGS -->
+<section data-i="05" data-notes="Transition slide. 'Then three things happened.' Set up the triptych: the exit, the proof, the product. Keep it tight — this is the table of contents for the next three beats.">
+  <div class="wrap">
+    <div class="section-tag r">What the system did for me</div>
+    <h2 class="display r">Then three<br>things <em>happened.</em></h2>
+  </div>
+</section>
+
+<!-- 06 EXIT -->
+<section data-i="06" data-notes="Beat one — credibility. The exit. Zero to acquired in 12 months. NASDAQ-listed buyer, Financial Times covered it. Don't oversell; let the FT headline do the work. This earns you the right to the rest of the talk.">
+  <div class="wrap split rev">
+    <div>
+      <div class="eyebrow amber r">One · the exit</div>
+      <h2 class="h-lg r">It helped me build<br>and sell my company.</h2>
+      <p class="lede r" style="margin-top:18px">From zero to acquired in <em class="amber">12 months.</em> My first exit.</p>
+    </div>
+    <div>
+      <div class="term r">
+        <div class="term-head"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">financial-times.com</span></div>
+        <pre style="line-height:1.5"><span class="a">FINANCIAL TIMES</span>
+
+ISG Acquires AI Maturity Index
+Platform as Part of Broader AI
+Acceleration Strategy
+
+<span class="c">I sold my AI Maturity Index to a
+NASDAQ-listed company. One year
+after I started.</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 PROOF -->
+<section data-i="07" data-notes="Beat two — proof it generalises. It wasn't just me. 140+ people run their own Second Brain. A side project that became a revenue stream on autopilot. Hit the 140 number hard.">
+  <div class="wrap split">
+    <div>
+      <div class="eyebrow amber r">Two · the proof</div>
+      <h2 class="h-lg r">People run their own<br>Second Brain.</h2>
+      <p class="lede r" style="margin-top:18px">A side project that turned into a revenue stream on <em class="amber">autopilot.</em></p>
+    </div>
+    <div class="stat r">
+      <span class="num amber" data-to="140" data-suffix="+">0</span>
+      <span class="cap">Second Brains<br>in the wild</span>
+    </div>
+  </div>
+</section>
+
+<!-- 08 QUOTES -->
+<section data-i="08" data-notes="Social proof in their words. Read both quotes slowly. '10 days of work in a single day' and 'regular AI tools now seem like child's play.' Pause after each — let them land in the room.">
+  <div class="wrap">
+    <div class="eyebrow r">In their words</div>
+    <h2 class="h-md r">And it works<br>for them <em>too.</em></h2>
+    <div class="quotes">
+      <div class="quote r"><p>"I did about 10 days of work in a single day."</p><cite>Second Brain user</cite></div>
+      <div class="quote r"><p>"It opened up the world of true agentic work. Regular AI tools now just seem like child's play."</p><cite>Second Brain user</cite></div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 FACTORY -->
+<section data-i="09" data-notes="Beat three — what I'm building now. It made me a part-time software engineer. I'm vibe-coding Second Brain Factory so any expert can build and sell their own. Point at the live Stripe dashboard — real revenue, not a mock.">
+  <div class="wrap split rev">
+    <div>
+      <div class="eyebrow r">Three · Second Brain Factory</div>
+      <h2 class="h-lg r">It made me a<br>part-time <em>software engineer.</em></h2>
+      <p class="lede r" style="margin-top:18px">Now I'm building the product — so any expert can build and sell their own Second Brain.</p>
+    </div>
+    <div>
+      <div class="term r">
+        <div class="term-head"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">stripe · live revenue</span></div>
+        <pre><span class="c">// Second Brain Factory</span>
+<span class="c">// live Stripe revenue dashboard</span>
+
+<span class="k">▲</span> recurring   <span class="a">●●●●●●○○</span>
+<span class="k">▲</span> one-time    <span class="a">●●●●○○○○</span>
+<span class="k">▲</span> creators    <span class="k">growing ↗</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 RUNS MY DAY -->
+<section data-i="10" data-notes="Zoom back out to the human payoff. It runs my day; I enjoy my life. Gesture across the chips — projects, inbox, finances, priorities, decisions, content. All run by the system while you live.">
+  <div class="wrap">
+    <div class="eyebrow r">What I actually got</div>
+    <h2 class="display r">It runs my day.<br><em>I enjoy my life.</em></h2>
+    <div class="tags">
+      <span class="tag r">Projects</span><span class="tag r">Inbox</span><span class="tag r">Finances</span>
+      <span class="tag r">Priorities</span><span class="tag r">Decisions</span><span class="tag r">Content</span>
+    </div>
+  </div>
+</section>
+
+<!-- 11 BOTTLENECK -->
+<section data-i="11" data-notes="The thesis of the whole talk. None of this needed a smarter AI. It needed better context. Say it plainly and stop: AI is not the bottleneck anymore — context is. This is the line they'll quote.">
+  <div class="wrap" style="text-align:center">
+    <div class="eyebrow r" style="justify-content:center">The core idea</div>
+    <h2 class="display r">AI is not the<br>bottleneck anymore.<br><em>Context is.</em></h2>
+  </div>
+</section>
+
+<!-- 12 FOUR THINGS -->
+<section data-i="12" data-notes="Set up the four payoffs the audience will get too. The right context gave me four things I couldn't do before — and you get the same four. Then walk each in the next slides.">
+  <div class="wrap">
+    <div class="eyebrow r">What it gave me</div>
+    <h2 class="h-md r">Four things I<br>couldn't do before.</h2>
+    <div class="four">
+      <div class="cell r"><span class="n">WHY 01</span><h3>Do anything</h3></div>
+      <div class="cell r"><span class="n">WHY 02</span><h3>10x output</h3></div>
+      <div class="cell r"><span class="n">WHY 03</span><h3>Own your context</h3></div>
+      <div class="cell r"><span class="n">WHY 04</span><h3>Never re-explain</h3></div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 WHY 01 -->
+<section data-i="13" data-notes="Why 01 — do work outside your domain. With the right context the AI acts like a whole team: engineer, PM, writer, designer, marketer, operator, accountant. You become the conductor, not the bottleneck.">
+  <div class="wrap">
+    <div class="why r" style="border-top:none">
+      <div><div class="idx">Why 01</div><div class="num-big">01</div></div>
+      <div>
+        <h3>Do work outside your domain.</h3>
+        <p class="lede tight">With the right context, your AI acts like a:</p>
+        <div class="chiprow">
+          <span class="chip">Software engineer</span><span class="chip">Product manager</span>
+          <span class="chip">Writer</span><span class="chip">Designer</span>
+          <span class="chip">Marketer</span><span class="chip">Operator</span><span class="chip">Accountant</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 WHY 02 -->
+<section data-i="14" data-notes="Why 02 — scale. I run 8–12 agents at once. They work while I sleep, daily, without me opening a chat. That's where 10x stops being a slogan and becomes throughput.">
+  <div class="wrap">
+    <div class="why r" style="border-top:none">
+      <div><div class="idx">Why 02</div><div class="num-big">02</div></div>
+      <div>
+        <h3>I run <em>8–12</em> AI agents at once.</h3>
+        <p class="lede">They work while I sleep. Background agents run daily without me opening a chat. That is <strong>10x output, on autopilot.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 WHY 03 -->
+<section data-i="15" data-notes="Why 03 — ownership. Local files, your rules, your memory, your tools. The most important AI asset is not the model — it's the context you control. This is the moat the vendors can't take.">
+  <div class="wrap">
+    <div class="why r" style="border-top:none">
+      <div><div class="idx">Why 03</div><div class="num-big">03</div></div>
+      <div>
+        <h3>Own your context.</h3>
+        <div class="chiprow" style="margin-bottom:18px">
+          <span class="chip">Local files</span><span class="chip">Your rules</span>
+          <span class="chip">Your memory</span><span class="chip">Your tools</span>
+        </div>
+        <p class="lede">The most important AI asset is not the model. <strong>It is the context you control.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 WHY 04 -->
+<section data-i="16" data-notes="Why 04 — compounding. Never re-explain yourself. Read the scale numbers: 1,800+ files, 50 skills, 32 agents, 11 tools. Every decision loaded before the first token. And remember — it started as one empty folder.">
+  <div class="wrap">
+    <div class="why r" style="border-top:none">
+      <div><div class="idx">Why 04</div><div class="num-big">04</div></div>
+      <div>
+        <h3>Never re-explain yourself.</h3>
+        <div class="chiprow" style="margin-bottom:18px">
+          <span class="chip"><b style="color:var(--lime)" data-to="1800" data-suffix="+">0</b>&nbsp;files</span>
+          <span class="chip"><b style="color:var(--lime)">50</b>&nbsp;skills</span>
+          <span class="chip"><b style="color:var(--lime)">32</b>&nbsp;agents</span>
+          <span class="chip"><b style="color:var(--lime)">11</b>&nbsp;connected tools</span>
+        </div>
+        <p class="lede">Every decision, loaded before the first token. <strong>It started as one empty folder.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 17 WHAT IS IT -->
+<section data-i="17" data-notes="Define the thing. So what actually is a Second Brain? Not a concept — a real living system. Mine, on GitHub: 5,148 commits, 325 branches. It started as one empty folder and never stopped growing.">
+  <div class="wrap split">
+    <div>
+      <div class="eyebrow r">The big question</div>
+      <h2 class="h-lg r">So what actually<br>is a <em>Second Brain?</em></h2>
+      <p class="lede r" style="margin-top:18px">Not a concept. A real, living system that never stopped growing.</p>
+    </div>
+    <div class="r">
+      <div class="stat"><span class="num lime" data-to="5148">0</span></div>
+      <div class="cap" style="margin-top:10px">commits · <b style="color:var(--bone)" data-to="325">0</b> branches · one private GitHub repo</div>
+    </div>
+  </div>
+</section>
+
+<!-- 18 CONTEXT STACK -->
+<section data-i="18" data-notes="The architecture. A Second Brain is not a better prompt — it's a context stack. Six layers, each makes the next more useful: CLAUDE.md, Memory, Tools, Skills, Agents, Hooks. This is the mental model for the build.">
+  <div class="wrap">
+    <div class="eyebrow r">The anatomy</div>
+    <h2 class="h-md r">Not a better prompt.<br>A <em>context stack.</em></h2>
+    <p class="lede r" style="margin-top:14px">Each layer makes the next one more useful.</p>
+    <div class="stack">
+      <div class="layer r"><span class="ln">01</span><h3>CLAUDE.md</h3><ul><li>Project instructions</li><li>Voice &amp; rules</li><li>Conventions</li></ul></div>
+      <div class="layer r"><span class="ln">02</span><h3>Memory</h3><ul><li>Profile &amp; goals</li><li>Projects</li><li>Decisions &amp; examples</li></ul></div>
+      <div class="layer r"><span class="ln">03</span><h3>Tools</h3><ul><li>Gmail &amp; Calendar</li><li>Stripe &amp; CRM</li><li>Analytics &amp; files</li></ul></div>
+      <div class="layer r"><span class="ln">04</span><h3>Skills</h3><ul><li>Reusable commands</li><li>Repeatable workflows</li></ul></div>
+      <div class="layer r"><span class="ln">05</span><h3>Agents</h3><ul><li>Specialized workers</li><li>Run in parallel</li></ul></div>
+      <div class="layer r"><span class="ln">06</span><h3>Hooks</h3><ul><li>Deterministic automation</li><li>Fires every time</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 19 STATIC VS ENGINEERED -->
+<section data-i="19" data-notes="The contrast that sells it. Same model, different system. Walk the left column (the pain they live in) then the right (what engineered context buys). End on ownership: you own the system.">
+  <div class="wrap">
+    <div class="eyebrow r">Static vs engineered context</div>
+    <h2 class="h-md r">Same model.<br><em>Different system.</em></h2>
+    <div class="vs">
+      <div class="col r">
+        <h3 class="muted">Static</h3>
+        <ul>
+          <li>Re-brief AI every morning</li>
+          <li>Forgets decisions</li>
+          <li>Manual tool switching</li>
+          <li>Quality by vibes</li>
+          <li>Vendor owns the memory</li>
+        </ul>
+      </div>
+      <div class="col eng r">
+        <h3>Engineered</h3>
+        <ul>
+          <li>Context loads in 0 seconds</li>
+          <li>Decisions compound</li>
+          <li>Tools are connected</li>
+          <li>Outputs have quality gates</li>
+          <li>You own the system</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 20 PLAN -->
+<section data-i="20" data-phase="1" data-notes="Set the agenda for the live portion. Four moves, sixty minutes. See it work → build it live → use it → take it home. This is also the phase rail on the right — it lights up from here on.">
+  <div class="wrap">
+    <div class="section-tag r">06 / Plan for today</div>
+    <h2 class="h-lg r">Four moves.<br><em>Sixty minutes.</em></h2>
+    <div class="moves">
+      <div class="move r"><div class="mn">01</div><h3>See it work</h3><p>My real Second Brain answers real operating questions.</p></div>
+      <div class="move r"><div class="mn">02</div><h3>Build it live</h3><p>Empty folder to memory, skill, agent, and tool boundary.</p></div>
+      <div class="move r"><div class="mn">03</div><h3>Use it</h3><p>The room picks a job-to-be-done from a safe menu.</p></div>
+      <div class="move r"><div class="mn">04</div><h3>Take it home</h3><p>Gated resource with the prompt and repo from the session.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 21 DEMO: SEE IT WORK -->
+<section data-i="21" data-phase="1" data-notes="Phase 1, demo one. First I ask, it answers. Pick one live question from the room. Show the command running — /overview-demo, /followups, /visualize-html. Real data, real output. This is the 'oh' moment.">
+  <div class="wrap">
+    <div class="eyebrow r">Demo · See it work</div>
+    <h2 class="h-md r">First, I ask.<br><em>It answers.</em></h2>
+    <div class="demo-grid">
+      <div class="side ask r">
+        <h4>I ask</h4>
+        <ul>
+          <li>What did I do this week, and what are my priorities?</li>
+          <li>How many people downloaded my free resources in 30 days?</li>
+          <li>Which emails do I need to reply to urgently?</li>
+        </ul>
+      </div>
+      <div class="side run r">
+        <h4>It runs</h4>
+        <ul>
+          <li>/overview-demo · my daily standup</li>
+          <li>/followups</li>
+          <li>/visualize-html</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 22 DEMO: AGENTS -->
+<section data-i="22" data-phase="1" data-notes="Phase 1, demo two. A specialist for every job. Run the table: chief of staff plans the day, content creator writes in my voice, SDR finds leads, research analyst fact-checks. Emphasise they run in parallel.">
+  <div class="wrap">
+    <div class="eyebrow r">Demo · A team of agents</div>
+    <h2 class="h-md r">A specialist<br>for every <em>job.</em></h2>
+    <div class="tbl">
+      <div class="row head"><div class="cl">Agent</div><div class="cl">What it does</div></div>
+      <div class="row"><div class="cl">Chief of Staff</div><div class="cl">Plans my day, preps my decisions</div></div>
+      <div class="row"><div class="cl">Content Creator</div><div class="cl">Drafts content in my voice</div></div>
+      <div class="row"><div class="cl">Sales / SDR</div><div class="cl">Finds and qualifies leads</div></div>
+      <div class="row"><div class="cl">Research Analyst</div><div class="cl">Deep research, fact-checked</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 23 DEMO: QUALITY GATES -->
+<section data-i="23" data-phase="1" data-notes="Phase 1, demo three — the part nobody expects. It grades its own work. Every draft scored 0–100 before it ships, tells you what's weak line by line, then auto-fixes the slop. No more guessing if it's good.">
+  <div class="wrap">
+    <div class="eyebrow r">Demo · Quality gates</div>
+    <h2 class="h-md r">It grades<br>its own <em>work.</em></h2>
+    <p class="lede r" style="margin-top:14px">Every draft scored before it ships. No more guessing if it's good.</p>
+    <div class="demo-grid">
+      <div class="side run r">
+        <h4>Command</h4>
+        <ul><li>/evaluate-email</li><li>/evaluate-newsletter</li><li>/evaluate-linkedin</li></ul>
+      </div>
+      <div class="side ask r">
+        <h4>Returns</h4>
+        <ul style="gap:14px">
+          <li style="font-size:18px">A score, 0 to 100</li>
+          <li style="font-size:18px">What's weak, line by line</li>
+          <li style="font-size:18px">Then auto-fixes the AI slop</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 24 BUILD INTRO -->
+<section data-i="24" data-phase="2" data-notes="Phase 2 begins — we build. Empty folder to memory, a skill, an agent, and a connected tool. Seven steps. Tell them: from here, the room makes the choices. This is live, not a recording.">
+  <div class="wrap">
+    <div class="section-tag r">07 / Today's build</div>
+    <h2 class="display r">What we<br>build <em>together.</em></h2>
+    <div class="flow">
+      <div class="li r"><i>→</i> Set up the information architecture</div>
+      <div class="li r"><i>→</i> Add your context · the memory files</div>
+      <div class="li r"><i>→</i> Build an agent</div>
+      <div class="li r"><i>→</i> Build a skill</div>
+      <div class="li r"><i>→</i> Connect a real tool</div>
+      <div class="li r"><i>→</i> Run it on a real job</div>
+      <div class="li r"><i>→</i> Ship a gated resource page</div>
+    </div>
+  </div>
+</section>
+
+<!-- 25 STEP 1 -->
+<section data-i="25" data-phase="2" data-notes="Build step 1 — architecture. The empty folder gets its skeleton: CLAUDE.md, memory, skills, agents, tools, inbox. Narrate what each folder is for as it appears. Seconds, not minutes.">
+  <div class="wrap">
+    <div class="step r" style="border-top:none">
+      <div><div class="sn">Build · Step 1 / 7</div><div class="snum">01</div></div>
+      <div>
+        <h3>Set up the architecture.</h3>
+        <p class="lede">The empty folder gets its skeleton.</p>
+        <dl class="pair">
+          <dt>CLAUDE.md</dt><dd>how AI works with you</dd>
+          <dt>memory/</dt><dd>what it remembers</dd>
+          <dt>skills/</dt><dd>reusable workflows</dd>
+          <dt>agents/</dt><dd>specialized workers</dd>
+          <dt>tools/</dt><dd>connection boundaries</dd>
+          <dt>inbox/</dt><dd>raw input</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 26 STEP 2 -->
+<section data-i="26" data-phase="2" data-notes="Build step 2 — context. The memory files. Your real life goes in here: profile, goals, projects, decisions, examples. Use a real example from your own life so it doesn't feel abstract.">
+  <div class="wrap">
+    <div class="step r" style="border-top:none">
+      <div><div class="sn">Build · Step 2 / 7</div><div class="snum">02</div></div>
+      <div>
+        <h3>Add your context.</h3>
+        <p class="lede">The memory files. Your real life goes in here.</p>
+        <dl class="pair">
+          <dt>profile.md</dt><dd>who you are</dd>
+          <dt>goals.md</dt><dd>what you're chasing</dd>
+          <dt>projects.md</dt><dd>active work</dd>
+          <dt>decisions.md</dt><dd>what you already decided</dd>
+          <dt>examples.md</dt><dd>your taste</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 27 STEP 3 -->
+<section data-i="27" data-phase="2" data-notes="Build step 3 — an agent. A specialized worker. The room picks which one. Take a live vote — chief of staff, inbox triager, sales, content, research, or their idea. Build the one they choose.">
+  <div class="wrap">
+    <div class="step r" style="border-top:none">
+      <div><div class="sn">Build · Step 3 / 7</div><div class="snum">03</div></div>
+      <div>
+        <h3>Build an agent.</h3>
+        <p class="lede">A specialized worker. The room picks which one.</p>
+        <div class="choose">
+          <span class="opt">Chief of Staff</span><span class="opt">Inbox Triager</span>
+          <span class="opt">Sales Outreach</span><span class="opt">Content Pipeline</span>
+          <span class="opt">Research Analyst</span><span class="opt live">your idea · live pick</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 28 STEP 4 -->
+<section data-i="28" data-phase="2" data-notes="Build step 4 — a skill. Built with /skill-creator. One command, a full deliverable. The room picks again — daily briefing, draft proposal, meeting prep, follow-ups, weekly review, or their idea.">
+  <div class="wrap">
+    <div class="step r" style="border-top:none">
+      <div><div class="sn">Build · Step 4 / 7</div><div class="snum">04</div></div>
+      <div>
+        <h3>Build a skill.</h3>
+        <p class="lede">Built with /skill-creator. One command, a full deliverable.</p>
+        <div class="choose">
+          <span class="opt">/daily-briefing</span><span class="opt">/draft-proposal</span>
+          <span class="opt">/meeting-prep</span><span class="opt">/follow-ups</span>
+          <span class="opt">/weekly-review</span><span class="opt live">your idea · live pick</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 29 STEP 5 -->
+<section data-i="29" data-phase="2" data-notes="Build step 5 — connect a real tool. Now it can act, not just talk. The room picks: Gmail, Calendar, Stripe, Notion, LinkedIn. Stress the boundary — it acts inside allowed-tools, nothing sent without confirmation.">
+  <div class="wrap">
+    <div class="step r" style="border-top:none">
+      <div><div class="sn">Build · Step 5 / 7</div><div class="snum">05</div></div>
+      <div>
+        <h3>Connect a real tool.</h3>
+        <p class="lede">Now it can act, not just talk. The room picks.</p>
+        <div class="choose">
+          <span class="opt">Gmail · read &amp; draft</span><span class="opt">Calendar · read &amp; schedule</span>
+          <span class="opt">Stripe · revenue &amp; invoices</span><span class="opt">Notion · docs &amp; databases</span>
+          <span class="opt">LinkedIn · research &amp; outreach</span><span class="opt live">live pick</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 30 STEP 6 -->
+<section data-i="30" data-phase="3" data-notes="Phase 3 — use it. Point the new system at real work and watch it deliver: top-3 priorities, the skill we just built on real data, the agent on a real task. This is the proof it's not a toy.">
+  <div class="wrap">
+    <div class="step r" style="border-top:none">
+      <div><div class="sn">Build · Step 6 / 7</div><div class="snum">06</div></div>
+      <div>
+        <h3>Run it on a real job.</h3>
+        <p class="lede">We point the new system at real work and watch it deliver. This is the proof it's not a toy.</p>
+        <dl class="pair">
+          <dt>Top 3 priorities</dt><dd>why now · next action · time box</dd>
+          <dt>The skill we built</dt><dd>on your real data</dd>
+          <dt>The agent we built</dt><dd>on a real task</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 31 STEP 7 -->
+<section data-i="31" data-phase="4" data-notes="Phase 4 — take it home. We wrap by shipping a gated resource page live on iwoszapar.com. Landing + access page, the repo we built today, and the master prompt to build it again. They walk out with something real.">
+  <div class="wrap">
+    <div class="step r" style="border-top:none">
+      <div><div class="sn">Build · Step 7 / 7</div><div class="snum">07</div></div>
+      <div>
+        <h3>Ship it.</h3>
+        <p class="lede">We wrap by shipping a gated resource page, live on iwoszapar.com. You walk out with the repo we built.</p>
+        <dl class="pair">
+          <dt>Landing + access</dt><dd>email-gated</dd>
+          <dt>The repo</dt><dd>yours to keep</dd>
+          <dt>The master prompt</dt><dd>build your own again</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 32 THE ONE PROMPT -->
+<section data-i="32" data-phase="4" data-notes="The payoff artifact. This single prompt builds the whole thing. Don't read every word — point out the shape: context, rules, then nine phases that gate on your confirmation. Public info only, nothing sent. This is what they take home.">
+  <div class="wrap">
+    <div class="section-tag r">08 / The one prompt</div>
+    <h2 class="h-lg r">This builds<br>the <em>whole thing.</em></h2>
+    <div class="promptdoc r">
+      <div class="ph-row"><div class="lab">Brief</div><div class="txt">You are helping me build my first AI Second Brain. This folder is empty — you will build everything from scratch. The goal is not a knowledge base. It is to <b>stop re-explaining myself to AI</b>, and build a semi-autonomous system that co-drives my operations.</div></div>
+      <div class="ph-row"><div class="lab amber">Context</div><div class="txt">Iwo Szapar · Builder · Second Brain Factory / ISG · Goal: <b>automate 90% of non-strategy work</b> · Constraints: time, energy · Links: iwoszapar.com, linkedin.com/in/iwoszapar</div></div>
+      <div class="ph-row"><div class="lab amber">Rules</div><div class="txt">Run phases in order. <b>No files until I confirm the snapshot.</b> Public info only, cite sources, never invent. Keep it small. Don't contact, publish, or send anything.</div></div>
+      <div class="ph-row"><div class="lab">Phase 1</div><div class="txt"><b>Research me.</b> Folder is empty; research my site + LinkedIn via Anysite MCP. Output: verified / inferred / still unknown.</div></div>
+      <div class="ph-row"><div class="lab">Phase 2</div><div class="txt"><b>Play it back.</b> Summarize me in one paragraph, quote two of my own phrases, then stop: "Did I get this right?"</div></div>
+      <div class="ph-row"><div class="lab">Phase 3</div><div class="txt"><b>Operating snapshot.</b> Role, goal, constraints, projects, recurring work. Ask up to 3 questions. Confirmation gate before any file.</div></div>
+      <div class="ph-row"><div class="lab">Phase 4</div><div class="txt"><b>Scaffold the architecture.</b> Create CLAUDE.md, README, memory/ (profile, goals, projects, decisions, examples), inbox/, skills/, tools/allowed-tools.md.</div></div>
+      <div class="ph-row"><div class="lab">Phase 5</div><div class="txt"><b>Build one skill.</b> Use /skill-creator for the highest-leverage workflow: context, steps, output, quality gate, write-back.</div></div>
+      <div class="ph-row"><div class="lab">Phase 6</div><div class="txt"><b>Build one agent.</b> A specialist with its own job, context, tools, and boundaries.</div></div>
+      <div class="ph-row"><div class="lab">Phase 7</div><div class="txt"><b>Connect one tool.</b> Wire a real connection — Gmail, Calendar, or Stripe. Respect the allowed-tools boundary.</div></div>
+      <div class="ph-row"><div class="lab">Phase 8</div><div class="txt"><b>Use it.</b> Run the skill on my real context. Jobs to be done. Make the value obvious.</div></div>
+      <div class="ph-row"><div class="lab">Phase 9</div><div class="txt"><b>Explain + write back.</b> Explain the brain in plain English. Save new decisions, patterns, and open questions to remember.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 33 FINALE -->
+<section class="finale" data-i="33" data-phase="4" data-notes="Close the loop you opened. Empty folder. One prompt. Watch. Then hand it off: now go build your own. Point them to iwoszapar.com for the repo and the prompt. End on stillness — don't rush the last line.">
+  <div class="wrap">
+    <div class="eyebrow r">Now we build</div>
+    <h2 class="big r" style="font-family:Fraunces;font-weight:500">Empty folder.<br>One prompt.<br><em>Watch.</em></h2>
+    <h2 class="h-md r" style="margin-top:60px">Now go build<br>your own.</h2>
+    <a class="url r" href="https://iwoszapar.com" target="_blank" rel="noopener">iwoszapar.com → grab the repo and the prompt</a>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section'));
+  var total = sections.length;
+  document.getElementById('ctot').textContent = String(total).padStart(2,'0');
+  var fill = document.getElementById('fill');
+  var cidx = document.getElementById('cidx');
+  var rail = document.getElementById('rail');
+  var phases = Array.prototype.slice.call(rail.querySelectorAll('.ph'));
+
+  // scroll progress
+  function onScroll(){
+    var h = document.documentElement;
+    var p = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
+    fill.style.width = (p*100).toFixed(2) + '%';
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  // reveal + active tracking
+  var current = null;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        runCount(e.target);
+      }
+    });
+  }, {threshold:0.18});
+  sections.forEach(function(s){ io.observe(s); });
+
+  // which section is centered -> drives counter, rail, notes
+  var ioActive = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting && e.intersectionRatio > 0.5){
+        setActive(e.target);
+      }
+    });
+  }, {threshold:[0.5,0.75]});
+  sections.forEach(function(s){ ioActive.observe(s); });
+
+  function setActive(sec){
+    current = sec;
+    var i = sec.getAttribute('data-i') || '01';
+    cidx.textContent = i;
+    var ph = sec.getAttribute('data-phase');
+    if(ph){
+      rail.classList.add('show');
+      var pn = parseInt(ph,10);
+      phases.forEach(function(p){
+        var n = parseInt(p.getAttribute('data-phase'),10);
+        p.classList.toggle('active', n===pn);
+        p.classList.toggle('done', n<pn);
+      });
+    }
+    if(notes.classList.contains('open')) renderNotes();
+  }
+
+  // count-up
+  function runCount(scope){
+    var nums = scope.querySelectorAll('[data-to]');
+    nums.forEach(function(el){
+      if(el.dataset.done) return;
+      el.dataset.done = '1';
+      var to = parseInt(el.getAttribute('data-to'),10);
+      var suffix = el.getAttribute('data-suffix') || '';
+      var dur = 1100, start = null;
+      function step(ts){
+        if(!start) start = ts;
+        var t = Math.min((ts-start)/dur, 1);
+        var eased = 1 - Math.pow(1-t, 3);
+        var val = Math.round(to*eased);
+        el.textContent = val.toLocaleString('en-US') + (t===1?suffix:'');
+        if(t<1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  // hero spotlight
+  var spot = document.getElementById('spot');
+  if(spot){
+    document.querySelector('.hero').addEventListener('pointermove', function(ev){
+      var r = this.getBoundingClientRect();
+      spot.style.setProperty('--mx', ((ev.clientX-r.left)/r.width*100)+'%');
+      spot.style.setProperty('--my', ((ev.clientY-r.top)/r.height*100)+'%');
+    });
+  }
+
+  // ---- run notes ----
+  var notes = document.getElementById('notes');
+  var hint = document.getElementById('hint');
+  var nBody = document.getElementById('nBody');
+  var nNum = document.getElementById('nNum');
+  var nTag = document.getElementById('nTag');
+
+  function renderNotes(){
+    var sec = current || sections[0];
+    nNum.textContent = sec.getAttribute('data-i') || '01';
+    var ph = sec.getAttribute('data-phase');
+    nTag.textContent = ph ? ('PHASE 0'+ph) : 'RUN NOTES';
+    nBody.textContent = sec.getAttribute('data-notes') || 'No notes for this section.';
+  }
+  function toggleNotes(){
+    notes.classList.toggle('open');
+    var open = notes.classList.contains('open');
+    hint.style.opacity = open ? '0' : '1';
+    if(open) renderNotes();
+  }
+  document.getElementById('notesClose').addEventListener('click', toggleNotes);
+  document.addEventListener('keydown', function(e){
+    if(e.target && /input|textarea/i.test(e.target.tagName)) return;
+    if(e.key === 'n' || e.key === 'N'){ e.preventDefault(); toggleNotes(); }
+    if(e.key === 'Escape' && notes.classList.contains('open')) toggleNotes();
+  });
+})();
+</script>
+</body>
+</html>
