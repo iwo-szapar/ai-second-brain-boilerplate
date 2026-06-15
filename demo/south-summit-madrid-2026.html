@@ -6,21 +6,22 @@
 <title>You don't need better AI. You need a system. — South Summit Madrid 2026 · Iwo Szapar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400;1,9..40,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 <style>
+
 :root{
-  --ink:#0b0b0c;
-  --ink-2:#121214;
-  --ink-3:#1a1a1d;
-  --bone:#ECE6DA;
-  --bone-dim:#A39C8E;
-  --bone-faint:#6b665c;
-  --line:#26252480;
+  --ink:#0c0d0e;
+  --ink-2:#101113;
+  --bone:#F3EEE3;
+  --bone-dim:#9b958a;
+  --bone-faint:#706b61;
+  --edge:#EDE7D9;          /* primary hard border */
+  --edge-2:#3a382f;        /* dim secondary border */
   --lime:#C7F24E;
-  --lime-deep:#9fc52f;
+  --lime-deep:#a9d531;
   --amber:#E9A23B;
   --amber-deep:#c4832a;
-  --r:18px;
+  --shadow:#000;
   --maxw:1180px;
   --ease:cubic-bezier(.2,.75,.2,1);
 }
@@ -29,110 +30,101 @@ html{scroll-behavior:smooth}
 body{
   background:var(--ink);
   color:var(--bone);
-  font-family:"Hanken Grotesk",sans-serif;
-  font-size:18px;
-  line-height:1.55;
+  font-family:"DM Sans",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  font-size:18px;line-height:1.55;
   -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
-  position:relative;
+  overflow-x:hidden;position:relative;
 }
-/* ---------- ground texture ---------- */
+/* flat structural grid (brutalist ground) */
 body::before{
   content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(1200px 700px at 80% -10%, #1c1c1f 0%, transparent 60%),
-    radial-gradient(900px 600px at -10% 30%, #161618 0%, transparent 55%);
+  background-image:
+    linear-gradient(to right,#ffffff0c 1px,transparent 1px),
+    linear-gradient(to bottom,#ffffff0c 1px,transparent 1px);
+  background-size:64px 64px;
+  -webkit-mask-image:radial-gradient(135% 100% at 50% 0%,#000 35%,transparent 88%);
+  mask-image:radial-gradient(135% 100% at 50% 0%,#000 35%,transparent 88%);
 }
-.grain{
-  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-.dotgrid{
-  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.4;
-  background-image:radial-gradient(#ffffff10 1px, transparent 1px);
-  background-size:46px 46px;
-  -webkit-mask-image:radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 80%);
-  mask-image:radial-gradient(120% 90% at 50% 0%, #000 30%, transparent 80%);
-}
+.grain{display:none}
+.dotgrid{display:none}
 main{position:relative;z-index:2}
 
 /* ---------- top progress + index ---------- */
-.topbar{position:fixed;top:0;left:0;right:0;height:3px;z-index:60;background:transparent}
-.topbar .fill{height:100%;width:0;background:linear-gradient(90deg,var(--lime),var(--amber));box-shadow:0 0 14px #c7f24e66}
+.topbar{position:fixed;top:0;left:0;right:0;height:4px;z-index:60;background:transparent}
+.topbar .fill{height:100%;width:0;background:var(--lime)}
 .counter{
-  position:fixed;top:22px;left:26px;z-index:60;
-  font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.12em;
+  position:fixed;top:18px;left:22px;z-index:60;
+  font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.12em;
   color:var(--bone-dim);text-transform:uppercase;
-  display:flex;gap:.55em;align-items:center;mix-blend-mode:difference;
+  display:flex;gap:.55em;align-items:center;
+  border:2px solid var(--edge-2);padding:6px 12px;background:var(--ink);
 }
 .counter b{color:var(--bone)}
-.counter .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 10px var(--lime)}
+.counter .dot{width:8px;height:8px;background:var(--lime);border-radius:0}
 
 /* ---------- phase rail ---------- */
 .rail{
-  position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:60;
-  display:flex;flex-direction:column;gap:0;font-family:"JetBrains Mono",monospace;
-  opacity:0;transition:opacity .6s var(--ease);
+  position:fixed;right:22px;top:50%;transform:translateY(-50%);z-index:60;
+  display:flex;flex-direction:column;gap:0;font-family:"Space Mono",monospace;
+  opacity:0;transition:opacity .5s var(--ease);
 }
 .rail.show{opacity:1}
 .rail .ph{
   display:flex;align-items:center;gap:.7em;justify-content:flex-end;
   padding:9px 0;color:var(--bone-faint);font-size:11px;letter-spacing:.08em;
-  text-transform:uppercase;transition:color .4s var(--ease);text-align:right;
+  text-transform:uppercase;transition:color .3s var(--ease);text-align:right;
 }
-.rail .ph .lbl{max-width:0;overflow:hidden;white-space:nowrap;opacity:0;transition:.45s var(--ease)}
-.rail:hover .ph .lbl,.rail .ph.active .lbl{max-width:130px;opacity:1}
+.rail .ph .lbl{max-width:0;overflow:hidden;white-space:nowrap;opacity:0;transition:.4s var(--ease)}
+.rail:hover .ph .lbl,.rail .ph.active .lbl{max-width:140px;opacity:1}
 .rail .ph .pip{
-  width:10px;height:10px;border-radius:50%;border:1.5px solid #3a382f;flex:none;
-  transition:.4s var(--ease);position:relative;
+  width:12px;height:12px;border-radius:0;border:2px solid var(--edge-2);flex:none;
+  transition:.3s var(--ease);
 }
 .rail .ph.active{color:var(--bone)}
-.rail .ph.active .pip{background:var(--lime);border-color:var(--lime);box-shadow:0 0 12px var(--lime)}
-.rail .ph.done .pip{background:#3a382f;border-color:#3a382f}
+.rail .ph.active .pip{background:var(--lime);border-color:var(--lime)}
+.rail .ph.done .pip{background:var(--edge-2);border-color:var(--edge-2)}
 .rail .ph .n{font-size:11px;opacity:.6}
 
 /* ---------- run-notes ---------- */
 .note-hint{
-  position:fixed;bottom:20px;right:24px;z-index:60;
-  font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em;
+  position:fixed;bottom:18px;right:22px;z-index:60;
+  font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.1em;
   color:var(--bone-faint);text-transform:uppercase;display:flex;align-items:center;gap:.6em;
-  transition:opacity .4s;
+  transition:opacity .3s;
 }
 .note-hint kbd{
-  font-family:inherit;border:1px solid #38362d;border-radius:5px;padding:2px 8px;
-  color:var(--bone-dim);background:#ffffff08;box-shadow:0 1px 0 #00000060;
+  font-family:inherit;border:2px solid var(--edge-2);border-radius:0;padding:2px 8px;
+  color:var(--bone-dim);background:var(--ink);
 }
 .notes{
   position:fixed;left:0;right:0;bottom:0;z-index:80;
-  background:linear-gradient(0deg,#0a0a0bf2,#0a0a0bea);
-  backdrop-filter:blur(14px);border-top:1px solid var(--lime);
-  transform:translateY(101%);transition:transform .5s var(--ease);
-  box-shadow:0 -30px 60px #00000080;
+  background:var(--ink-2);border-top:4px solid var(--lime);
+  transform:translateY(101%);transition:transform .45s var(--ease);
+  box-shadow:0 -10px 0 var(--shadow);
 }
 .notes.open{transform:translateY(0)}
 .notes-inner{max-width:var(--maxw);margin:0 auto;padding:22px 32px 26px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:start}
-.notes-tag{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);display:flex;flex-direction:column;gap:6px;border-right:1px solid #ffffff14;padding-right:24px;white-space:nowrap}
-.notes-tag .big{font-size:30px;font-family:"Fraunces";color:var(--bone);letter-spacing:0}
+.notes-tag{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime);display:flex;flex-direction:column;gap:6px;border-right:2px solid var(--edge-2);padding-right:24px;white-space:nowrap}
+.notes-tag .big{font-size:30px;font-family:"DM Sans";font-weight:800;color:var(--bone);letter-spacing:-.02em}
 .notes-body{font-size:16px;line-height:1.6;color:var(--bone)}
-.notes-body .t{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:7px}
-.notes-close{position:absolute;top:12px;right:18px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--bone-faint);cursor:pointer;letter-spacing:.1em}
+.notes-body .t{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:7px}
+.notes-close{position:absolute;top:12px;right:18px;font-family:"Space Mono",monospace;font-size:11px;color:var(--bone-faint);cursor:pointer;letter-spacing:.1em}
 
 /* ---------- layout primitives ---------- */
 section{position:relative;padding:14vh 7vw;max-width:1340px;margin:0 auto}
 .wrap{max-width:var(--maxw);margin:0 auto}
-.eyebrow{font-family:"JetBrains Mono",monospace;font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--lime-deep);display:inline-flex;align-items:center;gap:.8em;margin-bottom:30px}
-.eyebrow.amber{color:var(--amber-deep)}
-.eyebrow::before{content:"";width:34px;height:1px;background:currentColor;opacity:.7}
-.kicker{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint)}
+.eyebrow{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--lime);display:inline-flex;align-items:center;gap:.7em;margin-bottom:30px;border:2px solid var(--edge-2);padding:7px 14px}
+.eyebrow.amber{color:var(--amber)}
+.kicker{font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint)}
 
-h1,h2,h3{font-family:"Fraunces",serif;font-weight:500;line-height:1.02;letter-spacing:-.02em}
-.display{font-size:clamp(46px,8.5vw,108px);font-weight:500;line-height:.98;letter-spacing:-.035em}
-.h-lg{font-size:clamp(38px,6vw,76px);line-height:1.0;letter-spacing:-.03em}
-.h-md{font-size:clamp(30px,4.4vw,54px);line-height:1.04;letter-spacing:-.025em}
-em{font-style:italic;color:var(--lime)}
+h1,h2,h3{font-family:"DM Sans",sans-serif;font-weight:800;line-height:1.0;letter-spacing:-.03em}
+.display{font-size:clamp(46px,8.5vw,104px);font-weight:800;line-height:.92;letter-spacing:-.045em}
+.h-lg{font-size:clamp(38px,6vw,74px);line-height:.96;letter-spacing:-.04em}
+.h-md{font-size:clamp(30px,4.4vw,52px);line-height:1.0;letter-spacing:-.03em}
+em{font-style:normal;color:var(--lime)}
 em.amber{color:var(--amber)}
 .muted{color:var(--bone-dim)}
-.lede{font-size:clamp(19px,2.1vw,24px);line-height:1.5;color:var(--bone-dim);max-width:46ch}
+.lede{font-size:clamp(19px,2.1vw,23px);line-height:1.5;color:var(--bone-dim);max-width:46ch}
 .lede.tight{max-width:40ch}
 strong{font-weight:700;color:var(--bone)}
 
@@ -153,36 +145,36 @@ strong{font-weight:700;color:var(--bone)}
 .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:12vh}
 .hero .display{margin:0}
 .hero-sub{margin-top:42px;display:flex;flex-wrap:wrap;gap:14px 26px;align-items:baseline}
-.hero-sub p{font-size:clamp(18px,2vw,22px);color:var(--bone-dim);max-width:34ch}
+.hero-sub p{font-size:clamp(18px,2vw,22px);color:var(--bone-dim);max-width:34ch;border-left:4px solid var(--lime);padding-left:18px}
 .spot{
   position:absolute;inset:0;pointer-events:none;z-index:-1;
-  background:radial-gradient(380px 380px at var(--mx,30%) var(--my,40%), #c7f24e1f, transparent 70%);
+  background:radial-gradient(360px 360px at var(--mx,30%) var(--my,40%), #c7f24e12, transparent 70%);
   transition:background .2s;
 }
-.scrollcue{position:absolute;bottom:36px;left:7vw;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint);display:flex;align-items:center;gap:10px}
-.scrollcue .bar{width:1px;height:38px;background:linear-gradient(var(--lime),transparent);animation:drop 2.2s var(--ease) infinite}
+.scrollcue{position:absolute;bottom:36px;left:7vw;font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint);display:flex;align-items:center;gap:10px}
+.scrollcue .bar{width:2px;height:38px;background:var(--lime);animation:drop 2.2s var(--ease) infinite}
 @keyframes drop{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 
 /* lists */
 .flow{display:flex;flex-direction:column;gap:14px;margin-top:36px}
-.flow .li{display:flex;gap:18px;align-items:baseline;font-size:clamp(20px,2.3vw,28px);font-family:"Fraunces";font-weight:400;color:var(--bone)}
-.flow .li i{font-family:"JetBrains Mono";font-style:normal;font-size:12px;color:var(--lime-deep);transform:translateY(-2px)}
+.flow .li{display:flex;gap:18px;align-items:baseline;font-size:clamp(20px,2.3vw,27px);font-family:"DM Sans";font-weight:600;color:var(--bone)}
+.flow .li i{font-family:"Space Mono";font-style:normal;font-size:12px;color:var(--lime);transform:translateY(-2px)}
 
 .tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
-.tag{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.04em;padding:9px 15px;border:1px solid #2c2b27;border-radius:999px;color:var(--bone);background:#ffffff05}
-.tag.amber{border-color:#5a4322;color:var(--amber)}
-.tag.lime{border-color:#46531f;color:var(--lime)}
+.tag{font-family:"Space Mono",monospace;font-size:13px;letter-spacing:.04em;padding:9px 15px;border:2px solid var(--edge);border-radius:0;color:var(--bone);background:transparent}
+.tag.amber{border-color:var(--amber);color:var(--amber)}
+.tag.lime{border-color:var(--lime);color:var(--lime)}
 
 /* code / terminal */
-.term{border:1px solid #232220;border-radius:14px;background:#0e0e10;overflow:hidden;box-shadow:0 30px 60px -30px #000,inset 0 1px 0 #ffffff08}
-.term-head{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid #1d1c1a;background:#111113}
-.term-head .d{width:11px;height:11px;border-radius:50%;background:#2c2b28}
-.term-head .d:nth-child(1){background:#3a2120}
-.term-head .d:nth-child(2){background:#3a3320}
-.term-head .d:nth-child(3){background:#21331f}
-.term-head .ttl{margin-left:10px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--bone-faint);letter-spacing:.06em}
-.term pre{font-family:"JetBrains Mono",monospace;font-size:14px;line-height:1.75;padding:22px 24px;color:#cfcabb;overflow-x:auto}
-.term pre .c{color:#6b665c}
+.term{border:3px solid var(--edge);border-radius:0;background:#0a0a0b;overflow:hidden;box-shadow:8px 8px 0 var(--shadow)}
+.term-head{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:3px solid var(--edge);background:var(--ink-2)}
+.term-head .d{width:11px;height:11px;border-radius:0;background:var(--bone-faint)}
+.term-head .d:nth-child(1){background:var(--amber)}
+.term-head .d:nth-child(2){background:var(--bone-dim)}
+.term-head .d:nth-child(3){background:var(--lime)}
+.term-head .ttl{margin-left:10px;font-family:"Space Mono",monospace;font-size:12px;color:var(--bone-faint);letter-spacing:.06em}
+.term pre{font-family:"Space Mono",monospace;font-size:14px;line-height:1.75;padding:22px 24px;color:#d7d1c4;overflow-x:auto}
+.term pre .c{color:var(--bone-faint)}
 .term pre .k{color:var(--lime)}
 .term pre .a{color:var(--amber)}
 
@@ -193,105 +185,105 @@ strong{font-weight:700;color:var(--bone)}
 
 /* big stat */
 .stat{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
-.stat .num{font-family:"Fraunces";font-weight:500;font-size:clamp(80px,15vw,180px);line-height:.85;letter-spacing:-.04em}
+.stat .num{font-family:"DM Sans";font-weight:800;font-size:clamp(80px,15vw,176px);line-height:.82;letter-spacing:-.05em}
 .stat .num.lime{color:var(--lime)}
 .stat .num.amber{color:var(--amber)}
-.stat .cap{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-dim)}
+.stat .cap{font-family:"Space Mono",monospace;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-dim)}
 
 /* quotes */
-.quotes{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:14px}
+.quotes{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--edge);border:3px solid var(--edge);margin-top:14px}
 @media(max-width:760px){.quotes{grid-template-columns:1fr}}
-.quote{border-left:2px solid var(--lime);padding:6px 0 6px 26px}
-.quote p{font-family:"Fraunces";font-size:clamp(22px,2.6vw,30px);font-weight:400;line-height:1.18;color:var(--bone)}
-.quote cite{display:block;margin-top:16px;font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--bone-faint);font-style:normal}
+.quote{padding:28px;background:var(--ink)}
+.quote p{font-family:"DM Sans";font-weight:600;font-size:clamp(22px,2.6vw,29px);line-height:1.16;color:var(--bone)}
+.quote cite{display:block;margin-top:16px;font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--bone-faint);font-style:normal}
 
 /* four-up */
-.four{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#1d1c1a;border:1px solid #1d1c1a;border-radius:16px;overflow:hidden;margin-top:20px}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:var(--edge);border:3px solid var(--edge);border-radius:0;overflow:hidden;margin-top:20px}
 @media(max-width:880px){.four{grid-template-columns:1fr 1fr}}
-.four .cell{background:var(--ink);padding:34px 26px;min-height:200px;display:flex;flex-direction:column;justify-content:space-between;transition:background .4s}
-.four .cell:hover{background:#121214}
-.four .cell .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--lime-deep);letter-spacing:.1em}
-.four .cell h3{font-size:30px;letter-spacing:-.02em}
+.four .cell{background:var(--ink);padding:34px 26px;min-height:200px;display:flex;flex-direction:column;justify-content:space-between;transition:background .3s}
+.four .cell:hover{background:var(--ink-2)}
+.four .cell .n{font-family:"Space Mono",monospace;font-size:12px;color:var(--lime);letter-spacing:.1em}
+.four .cell h3{font-size:30px;letter-spacing:-.02em;font-weight:800}
 
 /* why blocks */
-.why{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:start;padding:46px 0;border-top:1px solid var(--line)}
+.why{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:start;padding:46px 0;border-top:3px solid var(--edge-2)}
 @media(max-width:760px){.why{grid-template-columns:1fr;gap:18px}}
-.why .idx{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.16em;color:var(--bone-faint);text-transform:uppercase}
-.why .num-big{font-family:"Fraunces";font-size:clamp(54px,9vw,120px);line-height:.8;color:#2b2a26;font-weight:500;letter-spacing:-.03em}
-.why h3{font-size:clamp(28px,3.6vw,46px);margin-bottom:18px}
+.why .idx{font-family:"Space Mono",monospace;font-size:13px;letter-spacing:.16em;color:var(--bone-faint);text-transform:uppercase}
+.why .num-big{font-family:"DM Sans";font-weight:800;font-size:clamp(54px,9vw,118px);line-height:.8;color:var(--edge-2);letter-spacing:-.04em}
+.why h3{font-size:clamp(28px,3.6vw,44px);margin-bottom:18px;font-weight:800}
 .chiprow{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px}
-.chip{font-family:"JetBrains Mono",monospace;font-size:13px;padding:7px 13px;border-radius:8px;background:#ffffff07;border:1px solid #232220;color:var(--bone)}
+.chip{font-family:"Space Mono",monospace;font-size:13px;padding:7px 13px;border-radius:0;background:transparent;border:2px solid var(--edge);color:var(--bone)}
 
 /* context stack */
-.stack{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+.stack{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:24px;background:var(--edge);border:3px solid var(--edge)}
 @media(max-width:880px){.stack{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.stack{grid-template-columns:1fr}}
-.layer{border:1px solid #232220;border-radius:14px;padding:24px;background:linear-gradient(180deg,#111113,#0d0d0f);position:relative;overflow:hidden}
-.layer::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--lime);opacity:.5}
-.layer .ln{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--lime-deep);letter-spacing:.1em}
-.layer h3{font-size:24px;margin:8px 0 14px}
+.layer{border:none;border-radius:0;padding:24px;background:var(--ink);position:relative;overflow:hidden}
+.layer::after{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--lime)}
+.layer .ln{font-family:"Space Mono",monospace;font-size:12px;color:var(--lime);letter-spacing:.1em}
+.layer h3{font-size:24px;margin:8px 0 14px;font-weight:800}
 .layer ul{list-style:none;display:flex;flex-direction:column;gap:6px}
-.layer li{font-size:15px;color:var(--bone-dim);font-family:"JetBrains Mono";font-size:13.5px}
+.layer li{color:var(--bone-dim);font-family:"Space Mono";font-size:13.5px}
 
 /* vs */
-.vs{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1d1c1a;border:1px solid #1d1c1a;border-radius:16px;overflow:hidden;margin-top:24px}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--edge);border:3px solid var(--edge);border-radius:0;overflow:hidden;margin-top:24px}
 @media(max-width:760px){.vs{grid-template-columns:1fr}}
 .vs .col{background:var(--ink);padding:34px}
-.vs .col.eng{background:linear-gradient(180deg,#11140b,#0c0d08)}
-.vs .col h3{font-size:30px;margin-bottom:22px;display:flex;align-items:center;gap:12px}
+.vs .col.eng{background:var(--ink-2)}
+.vs .col h3{font-size:30px;margin-bottom:22px;display:flex;align-items:center;gap:12px;font-weight:800}
 .vs .col.eng h3{color:var(--lime)}
 .vs ul{list-style:none;display:flex;flex-direction:column;gap:14px}
 .vs li{display:flex;gap:12px;align-items:flex-start;font-size:16.5px;color:var(--bone-dim)}
 .vs li::before{content:"—";color:var(--bone-faint)}
 .vs .eng li{color:var(--bone)}
-.vs .eng li::before{content:"+";color:var(--lime)}
+.vs .eng li::before{content:"+";color:var(--lime);font-weight:700}
 
 /* plan / moves */
-.moves{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:30px}
+.moves{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:30px;background:var(--edge);border:3px solid var(--edge)}
 @media(max-width:880px){.moves{grid-template-columns:1fr 1fr}}
-.move{border:1px solid #232220;border-radius:14px;padding:26px;background:#0e0e10;transition:.4s var(--ease)}
-.move:hover{transform:translateY(-4px);border-color:#3a4720}
-.move .mn{font-family:"Fraunces";font-size:40px;color:var(--lime);line-height:1}
-.move h3{font-size:21px;margin:14px 0 8px}
+.move{border:none;border-radius:0;padding:26px;background:var(--ink);transition:.3s var(--ease)}
+.move:hover{background:var(--ink-2)}
+.move .mn{font-family:"DM Sans";font-weight:800;font-size:40px;color:var(--lime);line-height:1}
+.move h3{font-size:21px;margin:14px 0 8px;font-weight:800}
 .move p{font-size:14.5px;color:var(--bone-dim);line-height:1.45}
 
 /* demo rows */
-.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1d1c1a;border:1px solid #1d1c1a;border-radius:14px;overflow:hidden;margin-top:22px}
+.demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--edge);border:3px solid var(--edge);border-radius:0;overflow:hidden;margin-top:22px}
 @media(max-width:760px){.demo-grid{grid-template-columns:1fr}}
 .demo-grid .side{background:var(--ink);padding:30px}
-.demo-grid .side h4{font-family:"JetBrains Mono";font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:18px}
-.demo-grid .side.run h4{color:var(--lime-deep)}
+.demo-grid .side h4{font-family:"Space Mono";font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:18px}
+.demo-grid .side.run h4{color:var(--lime)}
 .demo-grid ul{list-style:none;display:flex;flex-direction:column;gap:12px}
-.demo-grid .ask li{font-family:"Fraunces";font-size:20px;color:var(--bone);line-height:1.25}
-.demo-grid .run li{font-family:"JetBrains Mono";font-size:15px;color:var(--lime)}
+.demo-grid .ask li{font-family:"DM Sans";font-weight:600;font-size:20px;color:var(--bone);line-height:1.25}
+.demo-grid .run li{font-family:"Space Mono";font-size:15px;color:var(--lime)}
 
 /* table */
-.tbl{margin-top:22px;border:1px solid #232220;border-radius:14px;overflow:hidden}
-.tbl .row{display:grid;grid-template-columns:1fr 1.4fr;border-top:1px solid #1d1c1a}
+.tbl{margin-top:22px;border:3px solid var(--edge);border-radius:0;overflow:hidden}
+.tbl .row{display:grid;grid-template-columns:1fr 1.4fr;border-top:2px solid var(--edge-2)}
 .tbl .row:first-child{border-top:none}
 .tbl .row .cl{padding:18px 24px}
-.tbl .row .cl:first-child{font-family:"JetBrains Mono";font-size:15px;color:var(--bone);border-right:1px solid #1d1c1a;background:#0f0f11}
+.tbl .row .cl:first-child{font-family:"Space Mono";font-size:15px;color:var(--bone);border-right:2px solid var(--edge-2);background:var(--ink-2)}
 .tbl .row .cl:last-child{color:var(--bone-dim);font-size:16px}
-.tbl .head .cl{font-family:"JetBrains Mono"!important;font-size:11px!important;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-faint)!important;background:#0d0d0f!important}
+.tbl .head .cl{font-family:"Space Mono"!important;font-size:11px!important;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-faint)!important;background:var(--ink)!important}
 
 /* build steps */
-.step{display:grid;grid-template-columns:auto 1fr;gap:40px;padding:44px 0;border-top:1px solid var(--line);align-items:start}
+.step{display:grid;grid-template-columns:auto 1fr;gap:40px;padding:44px 0;border-top:3px solid var(--edge-2);align-items:start}
 @media(max-width:760px){.step{grid-template-columns:1fr;gap:18px}}
-.step .sn{font-family:"JetBrains Mono";font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime-deep)}
-.step .snum{font-family:"Fraunces";font-size:clamp(40px,6vw,84px);color:#2b2a26;line-height:.8;margin-top:8px}
-.step h3{font-size:clamp(26px,3.4vw,42px);margin-bottom:14px}
+.step .sn{font-family:"Space Mono";font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime)}
+.step .snum{font-family:"DM Sans";font-weight:800;font-size:clamp(40px,6vw,82px);color:var(--edge-2);line-height:.8;margin-top:8px}
+.step h3{font-size:clamp(26px,3.4vw,40px);margin-bottom:14px;font-weight:800}
 .pair{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin-top:18px;align-items:baseline}
-.pair dt{font-family:"JetBrains Mono";font-size:14px;color:var(--lime)}
+.pair dt{font-family:"Space Mono";font-size:14px;color:var(--lime)}
 .pair dd{color:var(--bone-dim);font-size:15.5px}
 .choose{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
-.choose .opt{font-family:"JetBrains Mono";font-size:13.5px;padding:8px 14px;border:1px solid #232220;border-radius:8px;color:var(--bone);background:#ffffff06}
-.choose .opt.live{border-color:var(--lime);color:var(--lime);box-shadow:0 0 0 1px #c7f24e22}
+.choose .opt{font-family:"Space Mono";font-size:13.5px;padding:8px 14px;border:2px solid var(--edge);border-radius:0;color:var(--bone);background:transparent}
+.choose .opt.live{border-color:var(--lime);color:var(--lime);background:transparent}
 
 /* prompt doc */
-.promptdoc{border:1px solid #232220;border-radius:16px;background:#0d0d0f;overflow:hidden;margin-top:26px}
-.promptdoc .ph-row{padding:22px 28px;border-top:1px solid #1a1a1c;display:grid;grid-template-columns:140px 1fr;gap:24px}
+.promptdoc{border:3px solid var(--edge);border-radius:0;background:var(--ink);overflow:hidden;margin-top:26px}
+.promptdoc .ph-row{padding:22px 28px;border-top:2px solid var(--edge-2);display:grid;grid-template-columns:140px 1fr;gap:24px}
 .promptdoc .ph-row:first-child{border-top:none}
-.promptdoc .ph-row .lab{font-family:"JetBrains Mono";font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--lime);align-self:start}
+.promptdoc .ph-row .lab{font-family:"Space Mono";font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--lime);align-self:start}
 .promptdoc .ph-row .lab.amber{color:var(--amber)}
 .promptdoc .ph-row .txt{color:var(--bone-dim);font-size:15.5px;line-height:1.6}
 .promptdoc .ph-row .txt b{color:var(--bone)}
@@ -299,14 +291,15 @@ strong{font-weight:700;color:var(--bone)}
 
 /* finale */
 .finale{min-height:92vh;display:flex;flex-direction:column;justify-content:center;text-align:left}
-.finale .big{font-size:clamp(54px,11vw,150px);line-height:.92;letter-spacing:-.04em}
-.url{margin-top:54px;display:inline-flex;align-items:center;gap:16px;font-family:"JetBrains Mono";font-size:15px;letter-spacing:.1em;color:var(--lime);text-decoration:none;border:1px solid #46531f;border-radius:999px;padding:14px 26px;transition:.4s var(--ease)}
-.url:hover{background:var(--lime);color:#0b0b0c;box-shadow:0 0 30px #c7f24e44}
+.finale .big{font-size:clamp(54px,11vw,144px);line-height:.9;letter-spacing:-.05em;font-family:"DM Sans";font-weight:800}
+.url{margin-top:54px;display:inline-flex;align-items:center;gap:16px;font-family:"Space Mono";font-size:15px;letter-spacing:.08em;color:var(--ink);background:var(--lime);text-decoration:none;border:3px solid var(--lime);border-radius:0;padding:16px 28px;transition:.2s var(--ease);box-shadow:6px 6px 0 var(--shadow)}
+.url:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--shadow)}
 
-.section-tag{font-family:"JetBrains Mono";font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:20px}
-hr.rule{border:none;border-top:1px solid var(--line);margin:0}
+.section-tag{font-family:"Space Mono";font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:20px}
+hr.rule{border:none;border-top:3px solid var(--edge-2);margin:0}
 
-::selection{background:var(--lime);color:#0b0b0c}
+::selection{background:var(--lime);color:var(--ink)}
+
 </style>
 </head>
 <body>
@@ -314,7 +307,7 @@ hr.rule{border:none;border-top:1px solid var(--line);margin:0}
 <div class="dotgrid"></div>
 
 <div class="topbar"><div class="fill" id="fill"></div></div>
-<div class="counter"><span class="dot"></span><span><b id="cidx">01</b> / <span id="ctot">24</span></span></div>
+<div class="counter"><span class="dot"></span><span><b id="cidx">01</b> / <span id="ctot">37</span></span></div>
 
 <nav class="rail" id="rail">
   <div class="ph" data-phase="1"><span class="lbl">See it work</span><span class="n">01</span><span class="pip"></span></div>
@@ -416,18 +409,10 @@ hr.rule{border:none;border-top:1px solid var(--line);margin:0}
       <p class="lede r" style="margin-top:18px">From zero to acquired in <em class="amber">12 months.</em> My first exit.</p>
     </div>
     <div>
-      <div class="term r">
-        <div class="term-head"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">financial-times.com</span></div>
-        <pre style="line-height:1.5"><span class="a">FINANCIAL TIMES</span>
-
-ISG Acquires AI Maturity Index
-Platform as Part of Broader AI
-Acceleration Strategy
-
-<span class="c">I sold my AI Maturity Index to a
-NASDAQ-listed company. One year
-after I started.</span></pre>
-      </div>
+      <figure class="r" style="margin:0;border:3px solid var(--edge);box-shadow:8px 8px 0 var(--shadow);background:#fff;overflow:hidden">
+        <img src="ft-acquisition.jpg" alt="Financial Times — ISG Acquires AI Maturity Index Platform as Part of Broader AI Acceleration Strategy" style="display:block;width:100%;height:auto" />
+        <figcaption style="background:var(--ink-2);color:var(--bone-dim);font-family:'Space Mono',monospace;font-size:13px;line-height:1.55;padding:16px 18px;border-top:3px solid var(--edge)">I sold my AI Maturity Index to a NASDAQ-listed company. One year after I started.</figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -460,7 +445,8 @@ after I started.</span></pre>
 </section>
 
 <!-- 09 FACTORY -->
-<section data-i="09" data-notes="Beat three — what I'm building now. It made me a part-time software engineer. I'm vibe-coding Second Brain Factory so any expert can build and sell their own. Point at the live Stripe dashboard — real revenue, not a mock.">
+<section data-i="09" data-notes="Beat three — what I'm building now. It made me a part-time software engineer. I'm vibe-coding Second Brain Factory so any expert can build and sell their own. Point at the GitHub graph — 9,900 commits this year, and I wasn't an engineer 15 months ago.">
+
   <div class="wrap split rev">
     <div>
       <div class="eyebrow r">Three · Second Brain Factory</div>
@@ -468,21 +454,26 @@ after I started.</span></pre>
       <p class="lede r" style="margin-top:18px">Now I'm building the product — so any expert can build and sell their own Second Brain.</p>
     </div>
     <div>
-      <div class="term r">
-        <div class="term-head"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">stripe · live revenue</span></div>
-        <pre><span class="c">// Second Brain Factory</span>
-<span class="c">// live Stripe revenue dashboard</span>
-
-<span class="k">▲</span> recurring   <span class="a">●●●●●●○○</span>
-<span class="k">▲</span> one-time    <span class="a">●●●●○○○○</span>
-<span class="k">▲</span> creators    <span class="k">growing ↗</span></pre>
-      </div>
+      <figure class="r" style="margin:0;border:3px solid var(--edge);box-shadow:8px 8px 0 var(--shadow);background:#fff;overflow:hidden">
+        <img src="github-contributions.png" alt="GitHub — 9,900 contributions in 2026 contribution graph" style="display:block;width:100%;height:auto" />
+        <figcaption style="background:var(--ink-2);color:var(--bone-dim);font-family:'Space Mono',monospace;font-size:13px;line-height:1.55;padding:16px 18px;border-top:3px solid var(--edge)">9,900 commits this year. I wasn't a software engineer 15 months ago.</figcaption>
+      </figure>
     </div>
   </div>
 </section>
 
+
+<!-- NEW: NO CODE / NO VC -->
+<section data-i="10" data-notes="The democratization punch — land it for a startup crowd. You don't need to code, and you don't need to raise. Anyone in this room can be a builder and ship a real product, even one that makes money, without a round or an engineering team.">
+  <div class="wrap" style="text-align:center">
+    <div class="eyebrow r" style="justify-content:center">The unlock</div>
+    <h2 class="display r">You don't need to code.<br>You don't need <em>VC.</em></h2>
+    <p class="lede r" style="margin:24px auto 0;max-width:52ch">Anyone can be a builder. Ship a real MVP — even a product that makes money — without raising a round or writing the code yourself.</p>
+  </div>
+</section>
+
 <!-- 10 RUNS MY DAY -->
-<section data-i="10" data-notes="Zoom back out to the human payoff. It runs my day; I enjoy my life. Gesture across the chips — projects, inbox, finances, priorities, decisions, content. All run by the system while you live.">
+<section data-i="11" data-notes="Zoom back out to the human payoff. It runs my day; I enjoy my life. Gesture across the chips — projects, inbox, finances, priorities, decisions, content. All run by the system while you live.">
   <div class="wrap">
     <div class="eyebrow r">What I actually got</div>
     <h2 class="display r">It runs my day.<br><em>I enjoy my life.</em></h2>
@@ -494,7 +485,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 11 BOTTLENECK -->
-<section data-i="11" data-notes="The thesis of the whole talk. None of this needed a smarter AI. It needed better context. Say it plainly and stop: AI is not the bottleneck anymore — context is. This is the line they'll quote.">
+<section data-i="12" data-notes="The thesis of the whole talk. None of this needed a smarter AI. It needed better context. Say it plainly and stop: AI is not the bottleneck anymore — context is. This is the line they'll quote.">
   <div class="wrap" style="text-align:center">
     <div class="eyebrow r" style="justify-content:center">The core idea</div>
     <h2 class="display r">AI is not the<br>bottleneck anymore.<br><em>Context is.</em></h2>
@@ -502,7 +493,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 12 FOUR THINGS -->
-<section data-i="12" data-notes="Set up the four payoffs the audience will get too. The right context gave me four things I couldn't do before — and you get the same four. Then walk each in the next slides.">
+<section data-i="13" data-notes="Set up the four payoffs the audience will get too. The right context gave me four things I couldn't do before — and you get the same four. Then walk each in the next slides.">
   <div class="wrap">
     <div class="eyebrow r">What it gave me</div>
     <h2 class="h-md r">Four things I<br>couldn't do before.</h2>
@@ -516,7 +507,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 13 WHY 01 -->
-<section data-i="13" data-notes="Why 01 — do work outside your domain. With the right context the AI acts like a whole team: engineer, PM, writer, designer, marketer, operator, accountant. You become the conductor, not the bottleneck.">
+<section data-i="14" data-notes="Why 01 — do work outside your domain. With the right context the AI acts like a whole team: engineer, PM, writer, designer, marketer, operator, accountant. You become the conductor, not the bottleneck.">
   <div class="wrap">
     <div class="why r" style="border-top:none">
       <div><div class="idx">Why 01</div><div class="num-big">01</div></div>
@@ -534,7 +525,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 14 WHY 02 -->
-<section data-i="14" data-notes="Why 02 — scale. I run 8–12 agents at once. They work while I sleep, daily, without me opening a chat. That's where 10x stops being a slogan and becomes throughput.">
+<section data-i="15" data-notes="Why 02 — scale. I run 8–12 agents at once. They work while I sleep, daily, without me opening a chat. That's where 10x stops being a slogan and becomes throughput.">
   <div class="wrap">
     <div class="why r" style="border-top:none">
       <div><div class="idx">Why 02</div><div class="num-big">02</div></div>
@@ -547,7 +538,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 15 WHY 03 -->
-<section data-i="15" data-notes="Why 03 — ownership. Local files, your rules, your memory, your tools. The most important AI asset is not the model — it's the context you control. This is the moat the vendors can't take.">
+<section data-i="16" data-notes="Why 03 — ownership. Local files, your rules, your memory, your tools. The most important AI asset is not the model — it's the context you control. This is the moat the vendors can't take.">
   <div class="wrap">
     <div class="why r" style="border-top:none">
       <div><div class="idx">Why 03</div><div class="num-big">03</div></div>
@@ -564,7 +555,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 16 WHY 04 -->
-<section data-i="16" data-notes="Why 04 — compounding. Never re-explain yourself. Read the scale numbers: 1,800+ files, 50 skills, 32 agents, 11 tools. Every decision loaded before the first token. And remember — it started as one empty folder.">
+<section data-i="17" data-notes="Why 04 — compounding. Never re-explain yourself. Read the scale numbers: 1,800+ files, 50 skills, 32 agents, 11 tools. Every decision loaded before the first token. And remember — it started as one empty folder.">
   <div class="wrap">
     <div class="why r" style="border-top:none">
       <div><div class="idx">Why 04</div><div class="num-big">04</div></div>
@@ -583,7 +574,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 17 WHAT IS IT -->
-<section data-i="17" data-notes="Define the thing. So what actually is a Second Brain? Not a concept — a real living system. Mine, on GitHub: 5,148 commits, 325 branches. It started as one empty folder and never stopped growing.">
+<section data-i="18" data-notes="Define the thing. So what actually is a Second Brain? Not a concept — a real living system. Mine, on GitHub: 5,148 commits, 325 branches. It started as one empty folder and never stopped growing.">
   <div class="wrap split">
     <div>
       <div class="eyebrow r">The big question</div>
@@ -598,7 +589,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 18 CONTEXT STACK -->
-<section data-i="18" data-notes="The architecture. A Second Brain is not a better prompt — it's a context stack. Six layers, each makes the next more useful: CLAUDE.md, Memory, Tools, Skills, Agents, Hooks. This is the mental model for the build.">
+<section data-i="19" data-notes="The architecture. A Second Brain is not a better prompt — it's a context stack. Six layers, each makes the next more useful: CLAUDE.md, Memory, Tools, Skills, Agents, Hooks. This is the mental model for the build.">
   <div class="wrap">
     <div class="eyebrow r">The anatomy</div>
     <h2 class="h-md r">Not a better prompt.<br>A <em>context stack.</em></h2>
@@ -615,7 +606,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 19 STATIC VS ENGINEERED -->
-<section data-i="19" data-notes="The contrast that sells it. Same model, different system. Walk the left column (the pain they live in) then the right (what engineered context buys). End on ownership: you own the system.">
+<section data-i="20" data-notes="The contrast that sells it. Same model, different system. Walk the left column (the pain they live in) then the right (what engineered context buys). End on ownership: you own the system.">
   <div class="wrap">
     <div class="eyebrow r">Static vs engineered context</div>
     <h2 class="h-md r">Same model.<br><em>Different system.</em></h2>
@@ -644,8 +635,66 @@ after I started.</span></pre>
   </div>
 </section>
 
+
+<!-- NEW: SAAS APOCALYPSE / OWN YOUR DB -->
+<section data-i="21" data-notes="The provocation. Who thinks the SaaS apocalypse is coming? My CRM is not HubSpot — it's a database. Rows and columns on Supabase, and the agents read and write it directly. The trade-off is real: own it and you maintain it; rent it and they do. But more people will own their data without ever being engineers.">
+  <div class="wrap">
+    <div class="eyebrow r">SaaS apocalypse?</div>
+    <h2 class="h-md r">Rent your tools.<br>Or <em>own your data.</em></h2>
+    <p class="lede r" style="margin-top:14px">My CRM is just a database — rows and columns on Supabase. Agents query it directly. No HubSpot. No Salesforce.</p>
+    <div class="vs">
+      <div class="col r">
+        <h3 class="muted">Rent a SaaS</h3>
+        <ul>
+          <li>Per-seat fees, forever</li>
+          <li>Your data lives in their cloud</li>
+          <li>Locked to their roadmap</li>
+          <li>But: they maintain it for you</li>
+        </ul>
+      </div>
+      <div class="col eng r">
+        <h3>Own a database</h3>
+        <ul>
+          <li>One table — rows &amp; columns</li>
+          <li>Your data, on your machine</li>
+          <li>Agents read &amp; write it directly</li>
+          <li>You maintain it</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- NEW: EVALS / WHAT GOOD MEANS -->
+<section data-i="22" data-notes="The thing nobody teaches — and the most useful idea to take home. Before you automate anything, define what 'good' means. Reverse-engineer the perfect output, then write the criteria it has to hit. Two ways to check: an LLM grading another LLM (fast, but it can hallucinate or flatter), and hardcoded rules (deterministic — ban a word, block test@gmail.com — it fails the gate every time it should). Use both.">
+  <div class="wrap">
+    <div class="eyebrow r">The thing nobody teaches</div>
+    <h2 class="h-md r">First, define what<br><em>&ldquo;good&rdquo;</em> means.</h2>
+    <p class="lede r" style="margin-top:14px">Reverse-engineer the perfect output, then write the criteria it must hit. Without evals it's just trial and error.</p>
+    <div class="vs">
+      <div class="col r">
+        <h3 class="muted">AI grades AI</h3>
+        <ul>
+          <li>One prompt checks another</li>
+          <li>Fast and flexible</li>
+          <li>Can hallucinate or flatter</li>
+        </ul>
+      </div>
+      <div class="col eng r">
+        <h3>Hardcoded rules</h3>
+        <ul>
+          <li>Deterministic — never lies</li>
+          <li>Ban a word · block test@gmail.com</li>
+          <li>Fails the gate every time it should</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- 20 PLAN -->
-<section data-i="20" data-phase="1" data-notes="Set the agenda for the live portion. Four moves, sixty minutes. See it work → build it live → use it → take it home. This is also the phase rail on the right — it lights up from here on.">
+<section data-i="23" data-phase="1" data-notes="Set the agenda for the live portion. Four moves, sixty minutes. See it work → build it live → use it → take it home. This is also the phase rail on the right — it lights up from here on.">
   <div class="wrap">
     <div class="section-tag r">06 / Plan for today</div>
     <h2 class="h-lg r">Four moves.<br><em>Sixty minutes.</em></h2>
@@ -659,7 +708,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 21 DEMO: SEE IT WORK -->
-<section data-i="21" data-phase="1" data-notes="Phase 1, demo one. First I ask, it answers. Pick one live question from the room. Show the command running — /overview-demo, /followups, /visualize-html. Real data, real output. This is the 'oh' moment.">
+<section data-i="24" data-phase="1" data-notes="Phase 1, demo one. First I ask, it answers. Pick one live question from the room. Show the command running — /overview-demo, /followups, /visualize-html. Real data, real output. This is the 'oh' moment.">
   <div class="wrap">
     <div class="eyebrow r">Demo · See it work</div>
     <h2 class="h-md r">First, I ask.<br><em>It answers.</em></h2>
@@ -685,7 +734,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 22 DEMO: AGENTS -->
-<section data-i="22" data-phase="1" data-notes="Phase 1, demo two. A specialist for every job. Run the table: chief of staff plans the day, content creator writes in my voice, SDR finds leads, research analyst fact-checks. Emphasise they run in parallel.">
+<section data-i="25" data-phase="1" data-notes="Phase 1, demo two. A specialist for every job. Run the table: chief of staff plans the day, content creator writes in my voice, SDR finds leads, research analyst fact-checks. Emphasise they run in parallel.">
   <div class="wrap">
     <div class="eyebrow r">Demo · A team of agents</div>
     <h2 class="h-md r">A specialist<br>for every <em>job.</em></h2>
@@ -700,7 +749,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 23 DEMO: QUALITY GATES -->
-<section data-i="23" data-phase="1" data-notes="Phase 1, demo three — the part nobody expects. It grades its own work. Every draft scored 0–100 before it ships, tells you what's weak line by line, then auto-fixes the slop. No more guessing if it's good.">
+<section data-i="26" data-phase="1" data-notes="Phase 1, demo three — the part nobody expects. It grades its own work. Every draft scored 0–100 before it ships, tells you what's weak line by line, then auto-fixes the slop. No more guessing if it's good.">
   <div class="wrap">
     <div class="eyebrow r">Demo · Quality gates</div>
     <h2 class="h-md r">It grades<br>its own <em>work.</em></h2>
@@ -723,7 +772,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 24 BUILD INTRO -->
-<section data-i="24" data-phase="2" data-notes="Phase 2 begins — we build. Empty folder to memory, a skill, an agent, and a connected tool. Seven steps. Tell them: from here, the room makes the choices. This is live, not a recording.">
+<section data-i="27" data-phase="2" data-notes="Phase 2 begins — we build. Empty folder to memory, a skill, an agent, and a connected tool. Seven steps. Tell them: from here, the room makes the choices. This is live, not a recording.">
   <div class="wrap">
     <div class="section-tag r">07 / Today's build</div>
     <h2 class="display r">What we<br>build <em>together.</em></h2>
@@ -740,7 +789,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 25 STEP 1 -->
-<section data-i="25" data-phase="2" data-notes="Build step 1 — architecture. The empty folder gets its skeleton: CLAUDE.md, memory, skills, agents, tools, inbox. Narrate what each folder is for as it appears. Seconds, not minutes.">
+<section data-i="28" data-phase="2" data-notes="Build step 1 — architecture. The empty folder gets its skeleton: CLAUDE.md, memory, skills, agents, tools, inbox. Narrate what each folder is for as it appears. Seconds, not minutes.">
   <div class="wrap">
     <div class="step r" style="border-top:none">
       <div><div class="sn">Build · Step 1 / 7</div><div class="snum">01</div></div>
@@ -761,7 +810,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 26 STEP 2 -->
-<section data-i="26" data-phase="2" data-notes="Build step 2 — context. The memory files. Your real life goes in here: profile, goals, projects, decisions, examples. Use a real example from your own life so it doesn't feel abstract.">
+<section data-i="29" data-phase="2" data-notes="Build step 2 — context. The memory files. Your real life goes in here: profile, goals, projects, decisions, examples. Use a real example from your own life so it doesn't feel abstract.">
   <div class="wrap">
     <div class="step r" style="border-top:none">
       <div><div class="sn">Build · Step 2 / 7</div><div class="snum">02</div></div>
@@ -781,7 +830,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 27 STEP 3 -->
-<section data-i="27" data-phase="2" data-notes="Build step 3 — an agent. A specialized worker. The room picks which one. Take a live vote — chief of staff, inbox triager, sales, content, research, or their idea. Build the one they choose.">
+<section data-i="30" data-phase="2" data-notes="Build step 3 — an agent. A specialized worker. The room picks which one. Take a live vote — chief of staff, inbox triager, sales, content, research, or their idea. Build the one they choose.">
   <div class="wrap">
     <div class="step r" style="border-top:none">
       <div><div class="sn">Build · Step 3 / 7</div><div class="snum">03</div></div>
@@ -799,7 +848,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 28 STEP 4 -->
-<section data-i="28" data-phase="2" data-notes="Build step 4 — a skill. Built with /skill-creator. One command, a full deliverable. The room picks again — daily briefing, draft proposal, meeting prep, follow-ups, weekly review, or their idea.">
+<section data-i="31" data-phase="2" data-notes="Build step 4 — a skill. Built with /skill-creator. One command, a full deliverable. The room picks again — daily briefing, draft proposal, meeting prep, follow-ups, weekly review, or their idea.">
   <div class="wrap">
     <div class="step r" style="border-top:none">
       <div><div class="sn">Build · Step 4 / 7</div><div class="snum">04</div></div>
@@ -817,7 +866,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 29 STEP 5 -->
-<section data-i="29" data-phase="2" data-notes="Build step 5 — connect a real tool. Now it can act, not just talk. The room picks: Gmail, Calendar, Stripe, Notion, LinkedIn. Stress the boundary — it acts inside allowed-tools, nothing sent without confirmation.">
+<section data-i="32" data-phase="2" data-notes="Build step 5 — connect a real tool. Now it can act, not just talk. The room picks: Gmail, Calendar, Stripe, Notion, LinkedIn. Stress the boundary — it acts inside allowed-tools, nothing sent without confirmation.">
   <div class="wrap">
     <div class="step r" style="border-top:none">
       <div><div class="sn">Build · Step 5 / 7</div><div class="snum">05</div></div>
@@ -835,7 +884,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 30 STEP 6 -->
-<section data-i="30" data-phase="3" data-notes="Phase 3 — use it. Point the new system at real work and watch it deliver: top-3 priorities, the skill we just built on real data, the agent on a real task. This is the proof it's not a toy.">
+<section data-i="33" data-phase="3" data-notes="Phase 3 — use it. Point the new system at real work and watch it deliver: top-3 priorities, the skill we just built on real data, the agent on a real task. This is the proof it's not a toy.">
   <div class="wrap">
     <div class="step r" style="border-top:none">
       <div><div class="sn">Build · Step 6 / 7</div><div class="snum">06</div></div>
@@ -853,7 +902,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 31 STEP 7 -->
-<section data-i="31" data-phase="4" data-notes="Phase 4 — take it home. We wrap by shipping a gated resource page live on iwoszapar.com. Landing + access page, the repo we built today, and the master prompt to build it again. They walk out with something real.">
+<section data-i="34" data-phase="4" data-notes="Phase 4 — take it home. We wrap by shipping a gated resource page live on iwoszapar.com. Landing + access page, the repo we built today, and the master prompt to build it again. They walk out with something real.">
   <div class="wrap">
     <div class="step r" style="border-top:none">
       <div><div class="sn">Build · Step 7 / 7</div><div class="snum">07</div></div>
@@ -871,7 +920,7 @@ after I started.</span></pre>
 </section>
 
 <!-- 32 THE ONE PROMPT -->
-<section data-i="32" data-phase="4" data-notes="The payoff artifact. This single prompt builds the whole thing. Don't read every word — point out the shape: context, rules, then nine phases that gate on your confirmation. Public info only, nothing sent. This is what they take home.">
+<section data-i="35" data-phase="4" data-notes="The payoff artifact. This single prompt builds the whole thing. Don't read every word — point out the shape: context, rules, then nine phases that gate on your confirmation. Public info only, nothing sent. This is what they take home.">
   <div class="wrap">
     <div class="section-tag r">08 / The one prompt</div>
     <h2 class="h-lg r">This builds<br>the <em>whole thing.</em></h2>
@@ -892,11 +941,27 @@ after I started.</span></pre>
   </div>
 </section>
 
+
+<!-- NEW: WHAT IT COSTS -->
+<section data-i="36" data-phase="4" data-notes="The question that always comes up — answer it head-on. It's a subscription, not surprise API bills. $20 Pro is fine to start; ~$100 (5x) is enough for almost everyone; $200 (20x) is my hardcore daily driver. Tokens are subsidised today — use it while it's cheap. The future is local, open-source models you just pay electricity for.">
+  <div class="wrap">
+    <div class="eyebrow r">Reality check</div>
+    <h2 class="h-md r">What it actually<br><em>costs.</em></h2>
+    <div class="tbl">
+      <div class="row head"><div class="cl">Plan</div><div class="cl">Who it's for</div></div>
+      <div class="row"><div class="cl">$20 / mo</div><div class="cl">Pro — fine to start, not for heavy use</div></div>
+      <div class="row"><div class="cl">~$100 / mo</div><div class="cl">5× — enough for almost everyone</div></div>
+      <div class="row"><div class="cl">$200 / mo</div><div class="cl">20× — my plan, hardcore daily driver</div></div>
+    </div>
+    <p class="lede r" style="margin-top:18px">A subscription, not surprise API bills. Tokens are subsidised today — use it while it's cheap. Tomorrow: local, open-source models.</p>
+  </div>
+</section>
+
 <!-- 33 FINALE -->
-<section class="finale" data-i="33" data-phase="4" data-notes="Close the loop you opened. Empty folder. One prompt. Watch. Then hand it off: now go build your own. Point them to iwoszapar.com for the repo and the prompt. End on stillness — don't rush the last line.">
+<section class="finale" data-i="37" data-phase="4" data-notes="Close the loop you opened. Empty folder. One prompt. Watch. Then hand it off: now go build your own. Point them to iwoszapar.com for the repo and the prompt. End on stillness — don't rush the last line.">
   <div class="wrap">
     <div class="eyebrow r">Now we build</div>
-    <h2 class="big r" style="font-family:Fraunces;font-weight:500">Empty folder.<br>One prompt.<br><em>Watch.</em></h2>
+    <h2 class="big r">Empty folder.<br>One prompt.<br><em>Watch.</em></h2>
     <h2 class="h-md r" style="margin-top:60px">Now go build<br>your own.</h2>
     <a class="url r" href="https://iwoszapar.com" target="_blank" rel="noopener">iwoszapar.com → grab the repo and the prompt</a>
   </div>
